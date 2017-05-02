@@ -1,0 +1,23 @@
+{
+  "name": "livre-liberty",
+  "version": "0.0.0",
+  "description": "Liberty theme for the Livre3D engine.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lcneves/liberty.git"
+  },
+  "keywords": [
+    "Livre",
+    "theme"
+  ],
+  "author": "Lucas Neves <lcneves@gmail.com> (https://www.lcneves.com)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/lcneves/liberty/issues"
+  },
+  "homepage": "https://github.com/lcneves/liberty#readme"
+}
