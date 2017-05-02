@@ -23,7 +23,7 @@
   "homepage": "https://github.com/lcneves/liberty#readme",
   "dependencies": {
     "babel-polyfill": "^6.23.0",
-    "livre3d": ">=0.0.1",
+    "livre3d": ">=0.0.0",
     "three": "^0.85.2"
   },
   "devDependencies": {
