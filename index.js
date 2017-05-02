@@ -8,13 +8,11 @@
 
 'use strict';
 
-module.exports = function (options) {
+require('babel-polyfill');
 
-  // These options were passed by the theme.
-  const theme = require('./theme.js');
+const theme = require('./theme.js');
 
-  require('livre-engine')({
-    theme: theme
-  });
-};
+require('livre3d')({
+  theme: theme
+});
 
