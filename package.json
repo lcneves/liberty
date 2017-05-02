@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/lcneves/liberty#readme",
   "dependencies": {
-    "livre3d": "0.0.1",
+    "livre3d": ">=0.0.1",
     "three": "^0.85.2"
   }
 }
