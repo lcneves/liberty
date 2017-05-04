@@ -31,7 +31,7 @@ module.exports = function (Component, parentObject, options) {
     config.position = DEFAULT_POSITION;
 
   class Component3D extends Component {
-    componentDidMount () {
+    componentDidMount() {
       console.log('componentDidMount');
       // Create and render three.js object based on the canvas just rendered
       let canvas = reactContainer.childNodes[0];
@@ -62,20 +62,20 @@ module.exports = function (Component, parentObject, options) {
 
       // We don't need the hidden container any longer
       document.body.removeChild(reactContainer);
-    }; 
+    } 
 
-    componentDidUpdate () {
+    componentDidUpdate() {
       console.log('componentDidUpdate');
       texture.needsUpdate = true;
-    };
+    }
 
-    componentWillUpdate () {
+    componentWillUpdate() {
       console.log('componentWillUpdate');
-    };
-    componentWillUnmount () {
+    }
+    componentWillUnmount() {
       console.log('componentWillUnmount');
-    };
-  };
+    }
+  }
 
   // Create hidden container and pass it to react for rendering
   reactContainer = document.createElement('div');

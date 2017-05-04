@@ -50,7 +50,7 @@ module.exports = function (setup, callback) {
 function deconstruct (props) {
   let { ...allProps } = props;
   return { ...allProps };
-};
+}
 
 function makeProps (type, config) {
 
@@ -85,7 +85,7 @@ function makeProps (type, config) {
   }
 
   return deconstruct(config);
-};
+}
 
 // Copied from http://stackoverflow.com/questions/6150289/how-to-convert-image-into-base64-string-using-javascript
 function toDataUrl(url, callback) {
@@ -94,10 +94,10 @@ function toDataUrl(url, callback) {
     var reader = new FileReader();
     reader.onloadend = function() {
       callback(reader.result);
-    }
+    };
     reader.readAsDataURL(xhr.response);
   };
   xhr.open('GET', url);
   xhr.responseType = 'blob';
   xhr.send();
-};
+}

@@ -74,7 +74,7 @@ Livre3D.getProps(setup, function (props) {
         </Surface>
       );
     }
-  };
+  }
 
   Livre3D.render(MyComponent, panel, {
     width: WORLD_WIDTH,

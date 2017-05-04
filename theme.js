@@ -37,8 +37,6 @@ class Camera extends THREE.PerspectiveCamera {
       CAMERA_FAR
     );
 
-    console.dir(this);
-
     this.position.z = CAMERA_DISTANCE;
   }
 
@@ -77,32 +75,34 @@ class Lights extends THREE.Object3D {
   }
 }
 
-var makeLogo = new Promise((resolve, reject) => {
+var makeLogo = new Promise(resolve => {
   fontLoader.load(GET_PATH + '/fonts/gentilis_regular.typeface.json',
-      (font) => {
-    var geometry = new THREE.TextGeometry('Livre', {
-      font: font,
-      size: 4,
-      height: 1,
-      curveSegments: 12
-    });
-    var material = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
-    var logo = new THREE.Mesh( geometry, material );
+    (font) => {
+      var geometry = new THREE.TextGeometry('Livre', {
+        font: font,
+        size: 4,
+        height: 1,
+        curveSegments: 12
+      });
+      var material = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
+      var logo = new THREE.Mesh( geometry, material );
 
-    logo.position.x = -70;
+      logo.position.x = -70;
 
-    resolve(logo);
-  });
+      resolve(logo);
+    }
+  );
 });
 
-var makeMenu = new Promise((resolve, reject) => {
+var makeMenu = new Promise(resolve => {
   jsonLoader.load(GET_PATH + '/objects/menu_icon.json',
-      (geometry, materials) => {
-    var material = new THREE.MeshPhongMaterial( { color: 0x333333 } );
-    var icon = new THREE.Mesh( geometry, material );
+    (geometry) => { // (geometry, materials) is also possible
+      var material = new THREE.MeshPhongMaterial( { color: 0x333333 } );
+      var icon = new THREE.Mesh( geometry, material );
 
-    resolve(icon);
-  });
+      resolve(icon);
+    }
+  );
 });
 
 

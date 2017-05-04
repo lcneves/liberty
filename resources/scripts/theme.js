@@ -50765,8 +50765,6 @@ var Camera = function (_THREE$PerspectiveCam) {
 
     var _this = _possibleConstructorReturn(this, (Camera.__proto__ || Object.getPrototypeOf(Camera)).call(this, CAMERA_FOV, aspectRatio, CAMERA_NEAR, CAMERA_FAR));
 
-    console.dir(_this);
-
     _this.position.z = CAMERA_DISTANCE;
     return _this;
   }
@@ -50834,7 +50832,7 @@ var Lights = function (_THREE$Object3D2) {
   return Lights;
 }(THREE.Object3D);
 
-var makeLogo = new Promise(function (resolve, reject) {
+var makeLogo = new Promise(function (resolve) {
   fontLoader.load(GET_PATH + '/fonts/gentilis_regular.typeface.json', function (font) {
     var geometry = new THREE.TextGeometry('Livre', {
       font: font,
@@ -50851,8 +50849,9 @@ var makeLogo = new Promise(function (resolve, reject) {
   });
 });
 
-var makeMenu = new Promise(function (resolve, reject) {
-  jsonLoader.load(GET_PATH + '/objects/menu_icon.json', function (geometry, materials) {
+var makeMenu = new Promise(function (resolve) {
+  jsonLoader.load(GET_PATH + '/objects/menu_icon.json', function (geometry) {
+    // (geometry, materials) is also possible
     var material = new THREE.MeshPhongMaterial({ color: 0x333333 });
     var icon = new THREE.Mesh(geometry, material);
 

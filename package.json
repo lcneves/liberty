@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "browserify index.js -o resources/scripts/theme.js -t [ babelify --presets [ env react ] ]"
+    "lint": "eslint *.js",
+    "prebuild:js": "npm run lint",
+    "build:js": "browserify index.js -o resources/scripts/theme.js -t [ babelify --presets [ env react ] ]",
+    "build": "npm run build:js"
   },
   "repository": {
     "type": "git",
@@ -23,12 +26,14 @@
   "homepage": "https://github.com/lcneves/liberty#readme",
   "dependencies": {
     "babel-polyfill": "^6.23.0",
-    "livre3d": ">=0.0.0",
+    "livre3d": "latest",
     "three": "^0.85.2"
   },
   "devDependencies": {
-    "babel-preset-env": "^1.4.0",
-    "babel-preset-react": "^6.24.1",
-    "babelify": "^7.3.0"
+    "babel-preset-env": "latest",
+    "babel-preset-react": "latest",
+    "babelify": "^7.3.0",
+    "eslint": "latest",
+    "eslint-plugin-react": "latest"
   }
 }

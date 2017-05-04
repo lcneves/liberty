@@ -39,7 +39,7 @@ var outRotateFade = function (object, options, callback) {
         fadeOut(child);
       }
     }
-  };
+  }
 
   function step (timestamp) {
     if (!start) start = timestamp;
