@@ -32,7 +32,7 @@
   "devDependencies": {
     "babel-preset-env": "latest",
     "babel-preset-react": "latest",
-    "babelify": "^7.3.0",
+    "babelify": "latest",
     "eslint": "latest",
     "eslint-plugin-react": "latest"
   }
