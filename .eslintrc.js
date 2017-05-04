@@ -22,7 +22,12 @@ module.exports = {
             "error",
             2,
             {
-                "SwitchCase": 1
+                "SwitchCase": 1,
+                "VariableDeclarator": {
+                    "var": 2,
+                    "let": 2,
+                    "const": 3
+                }
             }
         ],
         "linebreak-style": [
