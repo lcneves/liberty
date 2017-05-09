@@ -33,6 +33,7 @@
     "babel-preset-env": "latest",
     "babel-preset-react": "latest",
     "babelify": "latest",
+    "browserify": "^14.3.0",
     "eslint": "latest",
     "eslint-plugin-react": "latest",
     "mocha": "latest"
