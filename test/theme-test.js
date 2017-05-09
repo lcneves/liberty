@@ -21,4 +21,10 @@ describe('theme', function () {
       assert(scene instanceof THREE.Scene);
     });
   });
+
+  describe('makeMenu', function () {
+    it('should be instance of THREE.Mesh', function () {
+      theme.makeMenu().then(icon => assert(icon instanceof THREE.Scene));
+    });
+  });
 });
