@@ -50607,7 +50607,7 @@ var fontLoader = new THREE.FontLoader();
 var jsonLoader = new THREE.JSONLoader();
 
 // Constant definitions
-var GET_PATH = '/resources';
+var GET_PATH = '/public';
 
 var WORLD_WIDTH = 100;
 var CAMERA_FOV = 30;
@@ -50626,7 +50626,7 @@ var Camera = function (_THREE$PerspectiveCam) {
 
     var _this = _possibleConstructorReturn(this, (Camera.__proto__ || Object.getPrototypeOf(Camera)).call(this, CAMERA_FOV, aspectRatio, CAMERA_NEAR, CAMERA_FAR));
 
-    _this.position.z = CAMERA_DISTANCE;
+    _this.position.z = CAMERA_DISTANCE / aspectRatio;
     return _this;
   }
 
@@ -50635,6 +50635,7 @@ var Camera = function (_THREE$PerspectiveCam) {
     value: function update(width, height) {
       var aspectRatio = width / height;
       this.aspect = aspectRatio;
+      this.position.z = CAMERA_DISTANCE / aspectRatio;
       this.updateProjectionMatrix();
     }
   }]);
@@ -50705,7 +50706,7 @@ var makeLogo = function makeLogo() {
       var material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
       var logo = new THREE.Mesh(geometry, material);
 
-      logo.position.x = -70;
+      logo.position.x = -50;
 
       resolve(logo);
     });
@@ -50724,11 +50725,36 @@ var makeMenu = function makeMenu() {
   });
 };
 
+var makeGrid = function makeGrid(step) {
+  step = step || 5;
+
+  return new Promise(function (resolve) {
+    var grid = new THREE.Object3D();
+    var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+    for (var i = -50; i <= 50; i += step) {
+      var vGeometry = new THREE.Geometry();
+      vGeometry.vertices.push(new THREE.Vector3(i, -50, 0));
+      vGeometry.vertices.push(new THREE.Vector3(i, 50, 0));
+      var vLine = new THREE.Line(vGeometry, material);
+      grid.add(vLine);
+
+      var hGeometry = new THREE.Geometry();
+      hGeometry.vertices.push(new THREE.Vector3(-50, i, 0));
+      hGeometry.vertices.push(new THREE.Vector3(50, i, 0));
+      var hLine = new THREE.Line(hGeometry, material);
+      grid.add(hLine);
+    }
+    resolve(grid);
+  });
+};
+
 module.exports = {
   Scene: Scene,
   Body: Body,
   Camera: Camera,
   Lights: Lights,
+  makeGrid: makeGrid,
   makeLogo: makeLogo,
   makeMenu: makeMenu
 };
@@ -50743,49 +50769,7 @@ module.exports = {
 
 'use strict';
 
-function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
-
 module.exports = function (options) {
-  var makeHeader = function () {
-    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee() {
-      var logo, menu;
-      return regeneratorRuntime.wrap(function _callee$(_context) {
-        while (1) {
-          switch (_context.prev = _context.next) {
-            case 0:
-              _context.prev = 0;
-              _context.next = 3;
-              return theme.makeLogo();
-
-            case 3:
-              logo = _context.sent;
-              _context.next = 6;
-              return theme.makeMenu();
-
-            case 6:
-              menu = _context.sent;
-
-              body.add(logo);
-              body.add(menu);
-              _context.next = 13;
-              break;
-
-            case 11:
-              _context.prev = 11;
-              _context.t0 = _context['catch'](0);
-
-            case 13:
-            case 'end':
-              return _context.stop();
-          }
-        }
-      }, _callee, this, [[0, 11]]);
-    }));
-
-    return function makeHeader() {
-      return _ref.apply(this, arguments);
-    };
-  }();
 
   var width, height;
   function setViewportParameters() {
@@ -50844,6 +50828,22 @@ module.exports = function (options) {
 
     makeHeader();
   };
+
+  function makeHeader() {
+    theme.makeMenu().then(function (menu) {
+      return body.add(menu);
+    }); // TODO: catch
+
+    theme.makeLogo().then(function (logo) {
+      return body.add(logo);
+    });
+  }
+
+  // Test screen with a theme-generated grid.
+  // TODO: Development only!
+  theme.makeGrid().then(function (grid) {
+    return scene.add(grid);
+  });
 
   return {
     makeShell: makeShell

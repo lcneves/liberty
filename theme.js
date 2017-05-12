@@ -36,12 +36,13 @@ class Camera extends THREE.PerspectiveCamera {
       CAMERA_FAR
     );
 
-    this.position.z = CAMERA_DISTANCE;
+    this.position.z = CAMERA_DISTANCE / aspectRatio;
   }
 
   update(width, height) {
     const aspectRatio = width / height;
     this.aspect = aspectRatio;
+    this.position.z = CAMERA_DISTANCE / aspectRatio;
     this.updateProjectionMatrix();
   }
 }
@@ -87,7 +88,7 @@ var makeLogo = function () {
         var material = new THREE.MeshPhongMaterial( { color: 0x00ff00 } );
         var logo = new THREE.Mesh( geometry, material );
 
-        logo.position.x = -70;
+        logo.position.x = -50;
 
         resolve(logo);
       }
@@ -108,12 +109,36 @@ var makeMenu = function () {
   });
 };
 
+var makeGrid = function (step) {
+  step = step || 5;
+
+  return new Promise(resolve => {
+    var grid = new THREE.Object3D();
+    var material = new THREE.LineBasicMaterial({ color: 0x0000ff });
+
+    for (let i = -50; i <= 50; i += step) {
+      let vGeometry = new THREE.Geometry();
+      vGeometry.vertices.push(new THREE.Vector3(i, -50, 0));
+      vGeometry.vertices.push(new THREE.Vector3(i, 50, 0));
+      let vLine = new THREE.Line(vGeometry, material);
+      grid.add(vLine);
+
+      let hGeometry = new THREE.Geometry();
+      hGeometry.vertices.push(new THREE.Vector3(-50, i, 0));
+      hGeometry.vertices.push(new THREE.Vector3(50, i, 0));
+      let hLine = new THREE.Line(hGeometry, material);
+      grid.add(hLine);
+    }
+    resolve(grid);
+  });
+};
 
 module.exports = {
   Scene: Scene,
   Body: Body,
   Camera: Camera,
   Lights: Lights,
+  makeGrid: makeGrid,
   makeLogo: makeLogo,
   makeMenu: makeMenu
 };
