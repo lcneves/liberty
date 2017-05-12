@@ -15,8 +15,7 @@ const fontLoader = new THREE.FontLoader();
 const jsonLoader = new THREE.JSONLoader();
 
 // Constant definitions
-const NAME = 'liberty';
-const GET_PATH = '/themes/' + NAME;
+const GET_PATH = '/resources';
 
 const WORLD_WIDTH = 100;
 const CAMERA_FOV = 30;

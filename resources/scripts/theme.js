@@ -50607,8 +50607,7 @@ var fontLoader = new THREE.FontLoader();
 var jsonLoader = new THREE.JSONLoader();
 
 // Constant definitions
-var NAME = 'liberty';
-var GET_PATH = '/themes/' + NAME;
+var GET_PATH = '/resources';
 
 var WORLD_WIDTH = 100;
 var CAMERA_FOV = 30;
