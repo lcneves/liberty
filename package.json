@@ -7,7 +7,7 @@
     "test": "mocha",
     "lint": "eslint *.js",
     "prebuild:js": "npm run lint",
-    "build:js": "browserify index.js -o resources/scripts/theme.js -t [ babelify --presets [ env react ] ]",
+    "build:js": "browserify index.js -o public/scripts/theme.js -t [ babelify --presets [ env react ] ]",
     "build": "npm run build:js"
   },
   "repository": {
