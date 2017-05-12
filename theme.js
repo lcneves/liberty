@@ -15,7 +15,7 @@ const fontLoader = new THREE.FontLoader();
 const jsonLoader = new THREE.JSONLoader();
 
 // Constant definitions
-const GET_PATH = '/resources';
+const GET_PATH = '/public';
 
 const WORLD_WIDTH = 100;
 const CAMERA_FOV = 30;
