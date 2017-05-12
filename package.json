@@ -1,6 +1,6 @@
 {
   "name": "livre-liberty",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "Liberty theme for the Livre3D engine.",
   "main": "index.js",
   "scripts": {
