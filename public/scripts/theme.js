@@ -79,6 +79,8 @@ var THREE = require('three');
 var fontLoader = new THREE.FontLoader();
 var jsonLoader = new THREE.JSONLoader();
 
+var stylesheets = [require('./style/defaults.js')];
+
 // Constant definitions
 var GET_PATH = '/public';
 
@@ -148,7 +150,6 @@ var Body = function (_livre3d$ObjectLivre) {
     var _this3 = _possibleConstructorReturn(this, (Body.__proto__ || Object.getPrototypeOf(Body)).call(this));
 
     _this3._aspect = aspectRatio;
-    _this3._margin = 3;
     return _this3;
   }
 
@@ -156,12 +157,12 @@ var Body = function (_livre3d$ObjectLivre) {
     key: 'boundaries',
     get: function get() {
       return {
-        left: 0 - this._margin,
-        right: WORLD_WIDTH - this._margin,
-        top: WORLD_WIDTH / this._aspect - this._margin,
-        bottom: 0 - this._margin,
-        far: 0 - this._margin,
-        near: CAMERA_FAR - CAMERA_NEAR - this._margin
+        left: 0,
+        right: WORLD_WIDTH,
+        top: WORLD_WIDTH / this._aspect,
+        bottom: 0,
+        far: 0,
+        near: CAMERA_FAR - CAMERA_NEAR
       };
     }
   }, {
@@ -407,6 +408,7 @@ var makeGrid = function makeGrid(step) {
 
 // All set, let's initialize the engine!
 var theme = {
+  stylesheets: stylesheets,
   Scene: Scene,
   Body: Body,
   Camera: Camera,
@@ -419,7 +421,7 @@ var theme = {
 
 livre3d.init({ theme: theme });
 
-},{"babel-polyfill":5,"livre3d":303,"three":301}],5:[function(require,module,exports){
+},{"./style/defaults.js":302,"babel-polyfill":5,"livre3d":305,"three":301}],5:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -50931,6 +50933,93 @@ module.exports = require('./modules/_core');
 })));
 
 },{}],302:[function(require,module,exports){
+'use strict';
+
+module.exports = {
+  'resources': {
+    'fonts': {
+      'sans-serif-regular': {
+        'src': '/fonts/droid_sans_regular.typeface.json'
+      },
+      'sans-serif-bold': {
+        'src': '/fonts/droid_sans_bold.typeface.json'
+      },
+      'serif-regular': {
+        'src': '/fonts/droid_serif.typeface.json'
+      },
+      'serif-bold': {
+        'src': '/fonts/droid_serif.typeface.json'
+      }
+    }
+  },
+
+  'defaults': {
+    'direction': 'column',
+    'wrap': 'nowrap',
+    'justify-content': 'start',
+    'align-items': 'start',
+    'align-self': 'start',
+    'padding': 0,
+    'margin': 0,
+    'width': 'initial',
+    'height': 'initial',
+    'depth': 'initial',
+    'font-family': 'sans-serif',
+    'font-size': '1',
+    'font-weight': 'regular',
+    'color': 0x000000
+  },
+
+  'tags': {
+    'level': {
+      'display': 'plane'
+    },
+
+    'div': {
+      'display': 'block'
+    },
+
+    'span': {
+      'display': 'inline'
+    },
+
+    'p': {
+      'display': 'block'
+    },
+
+    'h1': {
+      'display': 'block',
+      'font-size': '6'
+    },
+
+    'h2': {
+      'display': 'block',
+      'font-size': '5'
+    },
+
+    'h3': {
+      'display': 'block',
+      'font-size': '4'
+    },
+
+    'h4': {
+      'display': 'block',
+      'font-size': '3'
+    },
+
+    'h5': {
+      'display': 'block',
+      'font-size': '2'
+    },
+
+    'h6': {
+      'display': 'block',
+      'font-size': '1'
+    }
+  }
+};
+
+},{}],303:[function(require,module,exports){
 /*
  * engine.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -50941,6 +51030,9 @@ module.exports = require('./modules/_core');
 'use strict';
 
 module.exports = function (options) {
+
+  var ht3d = require('./ht3d.js'),
+      style = require('./style.js');
 
   var THREE = require('three');
 
@@ -51029,7 +51121,148 @@ module.exports = function (options) {
   };
 };
 
-},{"./utils/click.js":306,"three":304}],303:[function(require,module,exports){
+},{"./ht3d.js":304,"./style.js":308,"./utils/click.js":309,"three":306}],304:[function(require,module,exports){
+'use strict';
+
+/*
+ * ht3d.js
+ * Copyright 2017 Lucas Neves <lcneves@gmail.com>
+ *
+ * Exports a function that parses an HT3D string and returns a Livre3D object.
+ * Part of the Livre project.
+ */
+
+var Object3D = require('./object3d.js');
+
+function parse(html) {
+
+  var array = html.split('>');
+  for (var index = 0; index < array.length; index++) {
+    while (array[index].indexOf('<') > 0) {
+      var text = array[index].substring(0, array[index].indexOf('<')).trim();
+      var newTag = array[index].substring(array[index].indexOf('<')).trim();
+      array[index] = newTag;
+      if (text) {
+        array.splice(index, 0, text);
+      }
+    }
+
+    array[index] = array[index].trim();
+  }
+
+  function getTagName(line) {
+    var re = /^<(\w+)/gi;
+    var results = re.exec(line);
+    return results[1];
+  }
+
+  function getProps(line) {
+    var re = /([\w-]+)="([\w\s-]+)"/gi;
+    var results = [];
+    var prop;
+    while ((prop = re.exec(line)) !== null) {
+      var value = prop[1] === 'class' ? prop[2].split(' ') : prop[2];
+      results.push({ name: prop[1], value: value });
+    }
+    return results;
+  }
+
+  function checkSelfClose(line) {
+    return line.charAt(line.length - 1) === '/';
+  }
+
+  function closeTag() {
+    if (currentObject && currentObject.parent) {
+      currentObject = currentObject.parent;
+    }
+  }
+
+  function parseTagLine(line) {
+    var tagName = getTagName(line);
+    var props = getProps(line);
+
+    if (tagName) {
+      var object = new Object3D();
+      object._tag = tagName;
+
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
+      try {
+        for (var _iterator = props[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var prop = _step.value;
+
+          object['_' + prop.name] = prop.value;
+        }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
+        }
+      }
+
+      if (currentObject) {
+        currentObject.add(object);
+      }
+      currentObject = object;
+    }
+
+    if (checkSelfClose(line)) {
+      closeTag();
+    }
+  }
+
+  var currentObject = null;
+  var _iteratorNormalCompletion2 = true;
+  var _didIteratorError2 = false;
+  var _iteratorError2 = undefined;
+
+  try {
+    for (var _iterator2 = array[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      var line = _step2.value;
+
+      if (line.charAt(0) === '<') {
+        if (line.charAt(1) === '/') {
+          closeTag();
+        } else {
+          parseTagLine(line);
+        }
+      } else if (currentObject) {
+        currentObject._text = line;
+      }
+    }
+  } catch (err) {
+    _didIteratorError2 = true;
+    _iteratorError2 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+        _iterator2.return();
+      }
+    } finally {
+      if (_didIteratorError2) {
+        throw _iteratorError2;
+      }
+    }
+  }
+
+  return currentObject;
+}
+
+module.exports = {
+  parse: parse
+};
+
+},{"./object3d.js":307}],305:[function(require,module,exports){
 /*
  * index.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -51041,7 +51274,7 @@ module.exports = function (options) {
 
 'use strict';
 
-module.exports.ObjectLivre = require('./object-livre.js');
+module.exports.Object3D = require('./object3d.js');
 
 module.exports.init = function (theme) {
 
@@ -51052,14 +51285,14 @@ module.exports.init = function (theme) {
   });
 };
 
-},{"./engine.js":302,"./object-livre.js":305,"livre-client":2}],304:[function(require,module,exports){
+},{"./engine.js":303,"./object3d.js":307,"livre-client":2}],306:[function(require,module,exports){
 arguments[4][301][0].apply(exports,arguments)
-},{"dup":301}],305:[function(require,module,exports){
+},{"dup":301}],307:[function(require,module,exports){
 /*
- * utils.js
+ * object3d.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
  *
- * Utilities for the Livre3D engine.
+ * Exports an object that extends THREE.Object3D with extra functionality.
  * Part of the Livre project.
  */
 
@@ -51166,13 +51399,29 @@ function makeWorldPosition(childObject, parentObject) {
   return position;
 }
 
-var ObjectLivre = function (_THREE$Object3D) {
-  _inherits(ObjectLivre, _THREE$Object3D);
+function parseRelativePosition(position) {
+  var parsedPosition;
 
-  function ObjectLivre(mesh) {
-    _classCallCheck(this, ObjectLivre);
+  for (var prop in position) {
+    if (position.hasOwnProperty(prop)) {
+      var relative = void 0;
+      var distance = void 0;
+      var axis = position[prop];
+      var indexSemicolon = axis.indexOf(':');
+      if (indexSemicolon !== -1) {
+        // relative = // TODO: continue when sober.
+      }
+    }
+  }
+}
 
-    var _this = _possibleConstructorReturn(this, (ObjectLivre.__proto__ || Object.getPrototypeOf(ObjectLivre)).call(this));
+var Object3D = function (_THREE$Object3D) {
+  _inherits(Object3D, _THREE$Object3D);
+
+  function Object3D(mesh) {
+    _classCallCheck(this, Object3D);
+
+    var _this = _possibleConstructorReturn(this, (Object3D.__proto__ || Object.getPrototypeOf(Object3D)).call(this));
 
     if (mesh) {
       _this.add(mesh);
@@ -51186,7 +51435,7 @@ var ObjectLivre = function (_THREE$Object3D) {
     return _this;
   }
 
-  _createClass(ObjectLivre, [{
+  _createClass(Object3D, [{
     key: 'setWorldPosition',
     value: function setWorldPosition(parentObject) {
       parentObject = parentObject || this.parent;
@@ -51216,12 +51465,204 @@ var ObjectLivre = function (_THREE$Object3D) {
     }
   }]);
 
-  return ObjectLivre;
+  return Object3D;
 }(THREE.Object3D);
 
-module.exports = ObjectLivre;
+module.exports = Object3D;
 
-},{"three":304}],306:[function(require,module,exports){
+},{"three":306}],308:[function(require,module,exports){
+/*
+ * style.js
+ * Copyright 2017 Lucas Neves <lcneves@gmail.com>
+ *
+ * Utility tools for styling with the Livre3D engine.
+ * Part of the Livre project.
+ */
+
+'use strict';
+
+module.exports = function (options) {
+  var config = options ? options : {};
+  config.publicPath = config.publicPath | '/public';
+
+  // From https://mathiasbynens.be/notes/xhr-responsetype-json
+  function getJSON(url) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('get', url, true);
+      xhr.onreadystatechange = function () {
+        var status;
+        var data;
+        // 
+        https: //xhr.spec.whatwg.org/#dom-xmlhttprequest-readystate
+        if (xhr.readyState === 4) {
+          // `DONE`
+          status = xhr.status;
+          if (status === 200) {
+            data = JSON.parse(xhr.responseText);
+            resolve(data);
+          } else {
+            reject(status);
+          }
+        }
+      };
+      xhr.send();
+    });
+  }
+
+  // Loads JSON assets (fonts, 3D objects) with XHR and creates dataPromise
+  // properties with the asset promise in the returned object.
+  function loadResources(styleArray) {
+    var results = {};
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = styleArray[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var source = _step.value;
+
+        var _loop = function _loop(category) {
+          if (source.hasOwnProperty(category)) {
+            if (!results.hasOwnProperty(category)) {
+              results[category] = {};
+            }
+
+            var _loop2 = function _loop2(item) {
+              results[category][item] = source[category][item];
+              results[category][item].dataPromise = new Promise(function (resolve) {
+                getJSON(config.publicPath + results[category][item].src).then(function (data) {
+                  return resolve(data);
+                });
+              });
+            };
+
+            for (var item in source[category]) {
+              _loop2(item);
+            }
+          }
+        };
+
+        for (var category in source) {
+          _loop(category);
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    return results;
+  }
+
+  // Iterates the array of stylesheets and apply relevant styles to the object.
+  // Assigns results to object._style.
+  function make(styleArray, object) {
+    var results = {};
+
+    function copyProps(selector) {
+      for (var property in selector) {
+        if (selector.hasOwnProperty(property)) {
+          results[property] = selector[property];
+        }
+      }
+    }
+
+    function copyDefaults() {
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = styleArray[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var style = _step2.value;
+
+          if (style.defaults) {
+            copyProps(style.defaults);
+          }
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+    }
+
+    function checkEqual(property, selector) {
+      return property === selector;
+    }
+
+    function checkIndex(property, selector) {
+      return property.indexOf(selector) !== -1;
+    }
+
+    function copy(origProp, destProp, check) {
+      var _iteratorNormalCompletion3 = true;
+      var _didIteratorError3 = false;
+      var _iteratorError3 = undefined;
+
+      try {
+        for (var _iterator3 = styleArray[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+          var style = _step3.value;
+
+          if (style[origProp]) {
+            for (var selector in style[origProp]) {
+              if (style[origProp].hasOwnProperty(selector) && check(object[destProp], selector)) {
+                copyProps(style[origProp][selector]);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        _didIteratorError3 = true;
+        _iteratorError3 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+            _iterator3.return();
+          }
+        } finally {
+          if (_didIteratorError3) {
+            throw _iteratorError3;
+          }
+        }
+      }
+    }
+
+    copyDefaults();
+    copy('tags', '_tag', checkEqual);
+    copy('classes', '_class', checkIndex);
+    copy('ids', '_id', checkEqual);
+
+    object._style = results;
+  }
+
+  return {
+    loadResources: loadResources,
+    make: make
+  };
+};
+
+},{}],309:[function(require,module,exports){
 /*
  * click.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
