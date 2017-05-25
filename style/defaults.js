@@ -10,10 +10,10 @@ module.exports = {
         'src': '/fonts/droid_sans_bold.typeface.json'
       },
       'serif-regular': {
-        'src': '/fonts/droid_serif.typeface.json'
+        'src': '/fonts/droid_serif_regular.typeface.json'
       },
       'serif-bold': {
-        'src': '/fonts/droid_serif.typeface.json'
+        'src': '/fonts/droid_serif_bold.typeface.json'
       }
     }
   },
@@ -36,7 +36,7 @@ module.exports = {
   },
 
   'tags': {
-    'level': {
+    'surface': {
       'display': 'plane'
     },
 

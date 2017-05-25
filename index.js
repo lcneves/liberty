@@ -21,12 +21,15 @@ const lights = [
   { type: 'directional' }
 ];
 
+const templates = require('./lib/templates.js');
+
 const theme = {
   stylesheets: stylesheets,
   lights: lights,
   background: 0xffffff,
   worldWidth: 100,
-  hfov: 30
+  hfov: 30,
+  templates: templates
 };
 
 // All set, let's initialize the engine!
