@@ -51505,15 +51505,50 @@ function getBoundaries(object) {
  * Gives the object's world dimensions in a boundary box.
  */
 function getDimensions(object) {
-  console.dir(object);
+  if (object.children && object.children[0]._isLivreObject) {
+    var virtualBox = {
+      x: 0,
+      y: 0,
+      z: 0
+    };
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
 
-  var bbox = new THREE.Box3().setFromObject(object);
+    try {
+      for (var _iterator = object.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var child = _step.value;
 
-  return {
-    x: bbox.max.x - bbox.min.x,
-    y: bbox.max.y - bbox.min.y,
-    z: bbox.max.z - bbox.min.z
-  };
+        var dimensions = getDimensions(child);
+        virtualBox.x = Math.max(virtualBox.x, dimensions.x);
+        virtualBox.y += dimensions.y;
+        virtualBox.z = Math.max(virtualBox.z, dimensions.z);
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    return virtualBox;
+  } else {
+    var bbox = new THREE.Box3().setFromObject(object);
+
+    return {
+      x: bbox.max.x - bbox.min.x,
+      y: bbox.max.y - bbox.min.y,
+      z: bbox.max.z - bbox.min.z
+    };
+  }
 }
 
 function makeInitialPosition(axis) {
@@ -51541,6 +51576,7 @@ function makeInitialPosition(axis) {
  * given its relative position to the parent.
  */
 function makeWorldPosition(childObject, parentObject) {
+  // Continue below this line
   return { x: 0, y: 0, z: 0 };
 
   var parentBoundaries = parentObject.boundaries;
