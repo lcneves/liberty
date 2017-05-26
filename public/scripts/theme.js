@@ -7324,8 +7324,8 @@ var Body = function (_Object3D) {
       return {
         left: 0,
         right: this._dimensions.width,
-        top: this._dimensions.width / this._aspect,
-        bottom: 0,
+        top: 0,
+        bottom: this._dimensions.width / this._aspect,
         far: 0,
         near: this._dimensions.far - this._dimensions.near
       };
@@ -7342,15 +7342,8 @@ var Body = function (_Object3D) {
   }, {
     key: 'aspectRatio',
     set: function set(value) {
-      var _this2 = this;
-
       this._aspect = value;
-
-      this.traverse(function (object) {
-        if (object instanceof Object3D && object !== _this2) {
-          object.setWorldPosition();
-        }
-      });
+      this.arrangeChildren();
     }
   }]);
 
@@ -7395,7 +7388,7 @@ var Camera = function (_THREE$PerspectiveCam) {
     var _this = _possibleConstructorReturn(this, (Camera.__proto__ || Object.getPrototypeOf(Camera)).call(this, getVerticalFOV(hfov, aspectRatio), aspectRatio, dimensions.near, dimensions.far));
 
     _this.position.x = dimensions.width / 2;
-    _this.position.y = dimensions.width / 2 / aspectRatio;
+    _this.position.y = -dimensions.width / 2 / aspectRatio;
     _this.position.z = dimensions.far;
     _this._dimensions = dimensions;
     _this._hfov = hfov;
@@ -7407,7 +7400,7 @@ var Camera = function (_THREE$PerspectiveCam) {
     set: function set(value) {
       this.aspect = value;
       this.fov = getVerticalFOV(this._hfov, value);
-      this.position.y = this._dimensions.width / 2 / value;
+      this.position.y = -this._dimensions.width / 2 / value;
       this.updateProjectionMatrix();
     }
   }]);
@@ -7602,7 +7595,13 @@ module.exports = function (options) {
     resetScene();
     importTemplate('shell', body);
     setTimeout(function () {
-      console.log(body);
+      console.dir({
+        bodyPosition: body.position,
+        childPosition: body.children[0].position,
+        grandChild0Pos: body.children[0].children[0].position,
+        grandChild1Pos: body.children[0].children[1].position,
+        body: body
+      });
     }, 1500);
   };
 
@@ -51490,22 +51489,36 @@ var THREE = require('three');
  * - the z axis grows to the near.
  */
 function getBoundaries(object) {
-  var bbox = new THREE.Box3().setFromObject(object);
-  return {
-    left: object.position.x - bbox.min.x,
-    right: bbox.max.x - object.position.x,
-    top: bbox.max.y - object.position.y,
-    bottom: object.position.y - bbox.min.y,
-    far: object.position.z - bbox.min.z,
-    near: bbox.max.z - object.position.z
-  };
+  if (object._isLivreObject) {
+    var dimensions = object.dimensions;
+    return {
+      left: 0,
+      right: dimensions.x,
+      top: dimensions.y,
+      bottom: 0,
+      far: 0,
+      near: dimensions.z
+    };
+  } else {
+    var position = new THREE.Vector3();
+    position.setFromMatrixPosition(object.matrixWorld);
+    var bbox = new THREE.Box3().setFromObject(object);
+    return {
+      left: position.x - bbox.min.x,
+      right: bbox.max.x - position.x,
+      top: bbox.max.y - position.y,
+      bottom: position.y - bbox.min.y,
+      far: position.z - bbox.min.z,
+      near: bbox.max.z - position.z
+    };
+  }
 }
 
 /*
  * Gives the object's world dimensions in a boundary box.
  */
 function getDimensions(object) {
-  if (object.children && object.children[0]._isLivreObject) {
+  if (object._isLivreObject) {
     var virtualBox = {
       x: 0,
       y: 0,
@@ -51542,7 +51555,6 @@ function getDimensions(object) {
     return virtualBox;
   } else {
     var bbox = new THREE.Box3().setFromObject(object);
-
     return {
       x: bbox.max.x - bbox.min.x,
       y: bbox.max.y - bbox.min.y,
@@ -51551,59 +51563,60 @@ function getDimensions(object) {
   }
 }
 
-function makeInitialPosition(axis) {
-  var position = {
-    reference: undefined,
-    distance: 0
+function makeInitialPosition() {
+  return {
+    x: { reference: 'left', distance: 0 },
+    y: { reference: 'top', distance: 0 },
+    z: { reference: 'far', distance: 0 }
   };
-  switch (axis) {
-    case 'x':
-      position.reference = 'left';
-      break;
-    case 'y':
-      position.reference = 'top';
-      break;
-    case 'z':
-      position.reference = 'far';
-      break;
-  }
-
-  return position;
 }
 
 /*
  * Returns the world position that the child should have
  * given its relative position to the parent.
  */
-function makeWorldPosition(childObject, parentObject) {
-  // Continue below this line
-  return { x: 0, y: 0, z: 0 };
-
+function makeWorldPosition(childObject, parentObject, offset) {
   var parentBoundaries = parentObject.boundaries;
-  var childBoundaries = childObject.boundaries;
+  var parentDimensions = parentObject.dimensions;
+  var childBoundaries = childObject._isLivreObject ? null : getBoundaries(childObject);
+  if (childBoundaries) console.log(childBoundaries.top);
 
   var position = {};
 
   var _arr = ['x', 'y', 'z'];
   for (var _i = 0; _i < _arr.length; _i++) {
     var axis = _arr[_i];
-    var reference = childObject.relativePosition[axis].reference;
-    var factor = void 0;
-    switch (reference) {
+    position[axis] = offset[axis].distance;
+    if (!childObject._isLivreObject) {
+      position[axis] += childBoundaries[offset[axis].reference];
+    }
+    switch (offset[axis].reference) {
       case 'right':
       case 'top':
       case 'near':
-        factor = -1;
-        break;
+        position[axis] = -position[axis];
       default:
-        factor = 1;
         break;
     }
-
-    position[axis] = parentObject.position[axis] + factor * (childObject.relativePosition[axis].distance + childBoundaries[reference] - parentBoundaries[reference]);
   }
-
   return position;
+}
+
+function positionChildren(parentObject) {
+  var offset = makeInitialPosition();
+  for (var i = 0; i < parentObject.children.length; i++) {
+    var child = parentObject.children[i];
+    var position = makeWorldPosition(child, parentObject, offset);
+    var _arr2 = ['x', 'y', 'z'];
+    for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
+      var axis = _arr2[_i2];
+      child.position[axis] = position[axis];
+    }
+    if (child._isLivreObject) {
+      positionChildren(child);
+    }
+    offset.y.distance += getDimensions(child).y;
+  }
 }
 
 var Object3D = function (_THREE$Object3D) {
@@ -51619,21 +51632,21 @@ var Object3D = function (_THREE$Object3D) {
     if (mesh) {
       _this.add(mesh);
     }
-
-    _this.relativePosition = {
-      x: makeInitialPosition('x'),
-      y: makeInitialPosition('y'),
-      z: makeInitialPosition('z')
-    };
     return _this;
   }
 
   _createClass(Object3D, [{
+    key: 'arrangeChildren',
+    value: function arrangeChildren() {
+      positionChildren(this);
+    }
+  }, {
     key: 'setWorldPosition',
-    value: function setWorldPosition(parentObject) {
+    value: function setWorldPosition(parentObject, offset) {
       parentObject = parentObject || this.parent;
+      offset = offset || makeInitialPosition();
 
-      var position = makeWorldPosition(this, parentObject);
+      var position = makeWorldPosition(this, parentObject, offset);
       for (var prop in position) {
         if (position.hasOwnProperty(prop)) {
           this.position[prop] = position[prop];
@@ -51646,10 +51659,13 @@ var Object3D = function (_THREE$Object3D) {
   }, {
     key: 'add',
     value: function add(object) {
-      if (object._isLivreObject) {
-        object.setWorldPosition(this);
-      }
       THREE.Object3D.prototype.add.call(this, object);
+
+      var topObject = this;
+      while (topObject.parent && topObject.parent._isLivreObject) {
+        topObject = topObject.parent;
+      }
+      topObject.arrangeChildren();
     }
   }, {
     key: 'dimensions',
