@@ -29,6 +29,7 @@ const theme = {
   background: 0xffffff,
   worldWidth: 100,
   hfov: 30,
+  nearFarRatio: 0.25,
   templates: templates
 };
 

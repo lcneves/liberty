@@ -79,6 +79,7 @@ var theme = {
   background: 0xffffff,
   worldWidth: 100,
   hfov: 30,
+  nearFarRatio: 0.25,
   templates: templates
 };
 
@@ -113,10 +114,8 @@ module.exports['shell'] = function template(locals) {
       pug_html = pug_html + '</div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
-      ;pug_debug_line = 2;pug_debug_filename = 'views/includes/footer.pug';
-      pug_html = pug_html + '<Copyright>';
-      ;pug_debug_line = 2;pug_debug_filename = 'views/includes/footer.pug';
-      pug_html = pug_html + '2017 Lucas Neves</Copyright></div></surface>';
+      ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
+      pug_html = pug_html + 'Copyright 2017 Lucas Neves</div></surface>';
     }).call(this, "user" in locals_for_with ? locals_for_with.user : typeof user !== "undefined" ? user : undefined);
   } catch (err) {
     pug.rethrow(err, pug_debug_filename, pug_debug_line);
@@ -7239,7 +7238,7 @@ module.exports = {
     'height': 'initial',
     'depth': 'initial',
     'font-family': 'sans-serif',
-    'font-size': '1',
+    'font-size': 1,
     'font-weight': 'regular',
     'color': 0x000000
   },
@@ -7263,32 +7262,32 @@ module.exports = {
 
     'h1': {
       'display': 'block',
-      'font-size': '6'
+      'font-size': 6
     },
 
     'h2': {
       'display': 'block',
-      'font-size': '5'
+      'font-size': 5
     },
 
     'h3': {
       'display': 'block',
-      'font-size': '4'
+      'font-size': 4
     },
 
     'h4': {
       'display': 'block',
-      'font-size': '3'
+      'font-size': 3
     },
 
     'h5': {
       'display': 'block',
-      'font-size': '2'
+      'font-size': 2
     },
 
     'h6': {
       'display': 'block',
-      'font-size': '1'
+      'font-size': 1
     }
   }
 };
@@ -7329,6 +7328,15 @@ var Body = function (_Object3D) {
         bottom: 0,
         far: 0,
         near: this._dimensions.far - this._dimensions.near
+      };
+    }
+  }, {
+    key: 'dimensions',
+    get: function get() {
+      return {
+        x: this._dimensions.width,
+        y: this._dimensions.width / this._aspect,
+        z: this._dimensions.far - this._dimensions.near
       };
     }
   }, {
@@ -7527,33 +7535,28 @@ module.exports = function (options) {
   // Functions to be exported.
   // Exported functions get assigned to a variable. Utility functions don't.
 
-  /*
-  function makeText(text, color, position) {
-    return new Promise(resolve => {
-      fontLoader.load(GET_PATH + '/fonts/gentilis_regular.typeface.json',
-        (font) => {
-          var geometry = new THREE.TextGeometry(text, {
-            font: font,
-            size: 4,
-            height: 3,
-            curveSegments: 12
-          });
-          var material = new THREE.MeshPhongMaterial( { color: color } );
-          var mesh = new THREE.Mesh( geometry, material );
-          var object = new Object3D(mesh);
-          for (let axis in position) {
-            if (position.hasOwnProperty(axis)) {
-              object.relativePosition[axis] = position[axis];
-            }
-          }
-           resolve(object);
-        }
-        );
+  function makeText(object) {
+    var fontPromise = resources.fonts[object._style['font-family'] + '-' + object._style['font-weight']].dataPromise;
+
+    return new Promise(function (resolve) {
+      fontPromise.then(function (font) {
+        console.dir(font);
+        var geometry = new THREE.TextGeometry(object._text, {
+          font: font,
+          size: object._style['font-size'],
+          height: object._style['font-size'] * 0.1,
+          curveSegments: 12
+        });
+        var material = new THREE.MeshPhongMaterial({ color: object._style['color'] });
+        var mesh = new THREE.Mesh(geometry, material);
+        var newObject = new Object3D(mesh);
+
+        resolve(newObject);
+      });
     });
   }
-  */
 
-  function makeStyles(object) {
+  function makeStylesAndText(object) {
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
@@ -7562,7 +7565,7 @@ module.exports = function (options) {
       for (var _iterator2 = object.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
         var child = _step2.value;
 
-        makeStyles(child);
+        makeStylesAndText(child);
       }
     } catch (err) {
       _didIteratorError2 = true;
@@ -7580,22 +7583,27 @@ module.exports = function (options) {
     }
 
     style.make(theme.stylesheets, object);
+
+    if (object._text) {
+      makeText(object).then(function (text) {
+        return object.add(text);
+      });
+    }
   }
 
   function importTemplate(template, parent) {
     var hypertext = theme.templates[template]();
     var object = ht3d.parse(hypertext);
-    makeStyles(object);
+    makeStylesAndText(object);
     body.add(object);
   }
 
   var makeShell = function makeShell() {
-    // TODO: config based on options
-
     resetScene();
-
     importTemplate('shell', body);
-    console.dir(body);
+    setTimeout(function () {
+      console.log(body);
+    }, 1500);
   };
 
   return {
@@ -51497,7 +51505,10 @@ function getBoundaries(object) {
  * Gives the object's world dimensions in a boundary box.
  */
 function getDimensions(object) {
+  console.dir(object);
+
   var bbox = new THREE.Box3().setFromObject(object);
+
   return {
     x: bbox.max.x - bbox.min.x,
     y: bbox.max.y - bbox.min.y,
@@ -51530,6 +51541,8 @@ function makeInitialPosition(axis) {
  * given its relative position to the parent.
  */
 function makeWorldPosition(childObject, parentObject) {
+  return { x: 0, y: 0, z: 0 };
+
   var parentBoundaries = parentObject.boundaries;
   var childBoundaries = childObject.boundaries;
 
@@ -51554,31 +51567,7 @@ function makeWorldPosition(childObject, parentObject) {
     position[axis] = parentObject.position[axis] + factor * (childObject.relativePosition[axis].distance + childBoundaries[reference] - parentBoundaries[reference]);
   }
 
-  console.dir({
-    parentBoundaries: parentBoundaries,
-    childBoundaries: childBoundaries,
-    parentPosition: parentObject.position,
-    childPosition: position,
-    childRelativePosition: childObject.relativePosition
-  });
-
   return position;
-}
-
-function parseRelativePosition(position) {
-  var parsedPosition;
-
-  for (var prop in position) {
-    if (position.hasOwnProperty(prop)) {
-      var relative = void 0;
-      var distance = void 0;
-      var axis = position[prop];
-      var indexSemicolon = axis.indexOf(':');
-      if (indexSemicolon !== -1) {
-        // relative = // TODO: continue when sober.
-      }
-    }
-  }
 }
 
 var Object3D = function (_THREE$Object3D) {
@@ -51588,6 +51577,8 @@ var Object3D = function (_THREE$Object3D) {
     _classCallCheck(this, Object3D);
 
     var _this = _possibleConstructorReturn(this, (Object3D.__proto__ || Object.getPrototypeOf(Object3D)).call(this));
+
+    _this._isLivreObject = true;
 
     if (mesh) {
       _this.add(mesh);
@@ -51619,7 +51610,9 @@ var Object3D = function (_THREE$Object3D) {
   }, {
     key: 'add',
     value: function add(object) {
-      object.setWorldPosition(this);
+      if (object._isLivreObject) {
+        object.setWorldPosition(this);
+      }
       THREE.Object3D.prototype.add.call(this, object);
     }
   }, {
@@ -51649,6 +51642,10 @@ module.exports = Object3D;
  */
 
 'use strict';
+
+var THREE = require('three');
+
+var fontLoader = new THREE.FontLoader();
 
 module.exports = function (options) {
   var config = options ? options : {};
@@ -51700,7 +51697,10 @@ module.exports = function (options) {
                 results[category][item] = source.resources[category][item];
                 results[category][item].dataPromise = new Promise(function (resolve) {
                   getJSON(config.publicPath + results[category][item].src).then(function (data) {
-                    return resolve(data);
+                    if (category === 'fonts') {
+                      data = fontLoader.parse(data);
+                    }
+                    resolve(data);
                   });
                 });
               };
@@ -51831,7 +51831,7 @@ module.exports = function (options) {
   };
 };
 
-},{}],313:[function(require,module,exports){
+},{"three":310}],313:[function(require,module,exports){
 /*
  * click.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>

@@ -30,7 +30,7 @@ module.exports = {
     'height': 'initial',
     'depth': 'initial',
     'font-family': 'sans-serif',
-    'font-size': '1',
+    'font-size': 1,
     'font-weight': 'regular',
     'color': 0x000000
   },
@@ -54,34 +54,33 @@ module.exports = {
 
     'h1': {
       'display': 'block',
-      'font-size': '6'
+      'font-size': 6
     },
 
     'h2': {
       'display': 'block',
-      'font-size': '5'
+      'font-size': 5
     },
 
     'h3': {
       'display': 'block',
-      'font-size': '4'
+      'font-size': 4
     },
 
     'h4': {
       'display': 'block',
-      'font-size': '3'
+      'font-size': 3
     },
 
     'h5': {
       'display': 'block',
-      'font-size': '2'
+      'font-size': 2
     },
 
     'h6': {
       'display': 'block',
-      'font-size': '1'
+      'font-size': 1
     }
   }
-}
-
+};
 
