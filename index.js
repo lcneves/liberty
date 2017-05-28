@@ -13,7 +13,8 @@ require('babel-polyfill');
 const livre3d = require('livre3d');
 
 const stylesheets = [
-  require('./style/defaults.js')
+  require('./style/defaults.js'),
+  require('./style/liberty.js')
 ];
 
 const lights = [

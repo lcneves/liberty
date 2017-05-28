@@ -67,7 +67,7 @@ require('babel-polyfill');
 
 var livre3d = require('livre3d');
 
-var stylesheets = [require('./style/defaults.js')];
+var stylesheets = [require('./style/defaults.js'), require('./style/liberty.js')];
 
 var lights = [{ type: 'ambient' }, { type: 'directional' }];
 
@@ -86,7 +86,7 @@ var theme = {
 // All set, let's initialize the engine!
 livre3d.init({ theme: theme });
 
-},{"./lib/templates.js":5,"./style/defaults.js":304,"babel-polyfill":6,"livre3d":309}],5:[function(require,module,exports){
+},{"./lib/templates.js":5,"./style/defaults.js":304,"./style/liberty.js":305,"babel-polyfill":6,"livre3d":310}],5:[function(require,module,exports){
 'use strict';
 
 var pug = require('pug-runtime');
@@ -7295,6 +7295,22 @@ module.exports = {
 },{}],305:[function(require,module,exports){
 'use strict';
 
+module.exports = {
+  'ids': {
+    'logo': {
+      'color': 0x00aa00,
+      'font-weight': 'bold'
+    },
+    'footer': {
+      'color': 0x888888,
+      'background-color': 0xaaaaaa
+    }
+  }
+};
+
+},{}],306:[function(require,module,exports){
+'use strict';
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -7352,7 +7368,7 @@ var Body = function (_Object3D) {
 
 module.exports = Body;
 
-},{"./object3d.js":311}],306:[function(require,module,exports){
+},{"./object3d.js":312}],307:[function(require,module,exports){
 /*
  * camera.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -7410,7 +7426,7 @@ var Camera = function (_THREE$PerspectiveCam) {
 
 module.exports = Camera;
 
-},{"three":310}],307:[function(require,module,exports){
+},{"three":311}],308:[function(require,module,exports){
 /*
  * engine.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -7424,13 +7440,15 @@ module.exports = function (options) {
 
   var ht3d = require('./ht3d.js'),
       style = require('./style.js')(),
-      Object3D = require('./object3d.js'),
       Body = require('./body.js'),
       Camera = require('./camera.js');
 
   var THREE = require('three');
 
   var theme = options.theme;
+  theme.resources = style.loadResources(theme.stylesheets);
+
+  var Object3D = require('./object3d.js')(theme);
 
   var far = theme.worldWidth / (2 * Math.tan(theme.hfov / 2 * Math.PI / 180));
   var dimensions = {
@@ -7438,8 +7456,6 @@ module.exports = function (options) {
     far: far,
     near: far * theme.nearFarRatio
   };
-
-  var resources = style.loadResources(theme.stylesheets);
 
   var scene, body, lights, camera;
 
@@ -7527,68 +7543,8 @@ module.exports = function (options) {
 
   // Functions to be exported.
   // Exported functions get assigned to a variable. Utility functions don't.
-
-  function makeText(object) {
-    var fontPromise = resources.fonts[object._style['font-family'] + '-' + object._style['font-weight']].dataPromise;
-
-    return new Promise(function (resolve) {
-      fontPromise.then(function (font) {
-        console.dir(font);
-        var geometry = new THREE.TextGeometry(object._text, {
-          font: font,
-          size: object._style['font-size'],
-          height: object._style['font-size'] * 0.1,
-          curveSegments: 12
-        });
-        var material = new THREE.MeshPhongMaterial({ color: object._style['color'] });
-        var mesh = new THREE.Mesh(geometry, material);
-        var newObject = new Object3D(mesh);
-
-        resolve(newObject);
-      });
-    });
-  }
-
-  function makeStylesAndText(object) {
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
-
-    try {
-      for (var _iterator2 = object.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-        var child = _step2.value;
-
-        makeStylesAndText(child);
-      }
-    } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-          _iterator2.return();
-        }
-      } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
-        }
-      }
-    }
-
-    style.make(theme.stylesheets, object);
-
-    if (object._text) {
-      makeText(object).then(function (text) {
-        return object.add(text);
-      });
-    }
-  }
-
-  function importTemplate(template, parent) {
-    var hypertext = theme.templates[template]();
-    var object = ht3d.parse(hypertext);
-    makeStylesAndText(object);
-    body.add(object);
+  function importTemplate(template, parentObject) {
+    parentObject.add(new Object3D({ template: template }), { rearrange: true });
   }
 
   var makeShell = function makeShell() {
@@ -7610,7 +7566,7 @@ module.exports = function (options) {
   };
 };
 
-},{"./body.js":305,"./camera.js":306,"./ht3d.js":308,"./object3d.js":311,"./style.js":312,"./utils/click.js":313,"three":310}],308:[function(require,module,exports){
+},{"./body.js":306,"./camera.js":307,"./ht3d.js":309,"./object3d.js":312,"./style.js":313,"./utils/click.js":315,"three":311}],309:[function(require,module,exports){
 'use strict';
 
 /*
@@ -7661,8 +7617,12 @@ function parse(html) {
   }
 
   function closeTag() {
-    if (currentObject && currentObject.parent) {
-      currentObject = currentObject.parent;
+    if (currentObject) {
+      currentObject.makeStyle();
+
+      if (currentObject.parent) {
+        currentObject = currentObject.parent;
+      }
     }
   }
 
@@ -7672,7 +7632,7 @@ function parse(html) {
 
     if (tagName) {
       var object = new Object3D();
-      object._tag = tagName;
+      object.setProperty('tag', tagName);
 
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -7682,7 +7642,7 @@ function parse(html) {
         for (var _iterator = props[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var prop = _step.value;
 
-          object['_' + prop.name] = prop.value;
+          object.setProperty(prop.name, prop.value);
         }
       } catch (err) {
         _didIteratorError = true;
@@ -7751,7 +7711,7 @@ module.exports = {
   parse: parse
 };
 
-},{"./object3d.js":311}],309:[function(require,module,exports){
+},{"./object3d.js":312}],310:[function(require,module,exports){
 /*
  * index.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -7774,7 +7734,7 @@ module.exports.init = function (theme) {
   });
 };
 
-},{"./engine.js":307,"./object3d.js":311,"livre-client":2}],310:[function(require,module,exports){
+},{"./engine.js":308,"./object3d.js":312,"livre-client":2}],311:[function(require,module,exports){
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -51460,7 +51420,7 @@ module.exports.init = function (theme) {
 
 })));
 
-},{}],311:[function(require,module,exports){
+},{}],312:[function(require,module,exports){
 /*
  * object3d.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -51471,7 +51431,11 @@ module.exports.init = function (theme) {
 
 'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -51479,212 +51443,312 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var THREE = require('three');
+module.exports = function (theme) {
 
-/*
- * Gives the object's world boundaries relative to its position point.
- * Three.js uses the right-hand coordinate system, so:
- * - the x axis grows to the right;
- * - the y axis grows to the top;
- * - the z axis grows to the near.
- */
-function getBoundaries(object) {
-  if (object._isLivreObject) {
-    var dimensions = object.dimensions;
-    return {
-      left: 0,
-      right: dimensions.x,
-      top: dimensions.y,
-      bottom: 0,
-      far: 0,
-      near: dimensions.z
-    };
-  } else {
-    var position = new THREE.Vector3();
-    position.setFromMatrixPosition(object.matrixWorld);
-    var bbox = new THREE.Box3().setFromObject(object);
-    return {
-      left: position.x - bbox.min.x,
-      right: bbox.max.x - position.x,
-      top: bbox.max.y - position.y,
-      bottom: position.y - bbox.min.y,
-      far: position.z - bbox.min.z,
-      near: bbox.max.z - position.z
-    };
-  }
-}
+  var THREE = require('three');
 
-/*
- * Gives the object's world dimensions in a boundary box.
- */
-function getDimensions(object) {
-  if (object._isLivreObject) {
-    var virtualBox = {
-      x: 0,
-      y: 0,
-      z: 0
-    };
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
+  var ht3d = require('./ht3d.js');
+  var style = require('./style.js');
+  var text = require('./text.js')(theme.resources.fonts);
 
-    try {
-      for (var _iterator = object.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        var child = _step.value;
+  var Background = function (_THREE$PlaneGeometry) {
+    _inherits(Background, _THREE$PlaneGeometry);
 
-        var dimensions = getDimensions(child);
-        virtualBox.x = Math.max(virtualBox.x, dimensions.x);
-        virtualBox.y += dimensions.y;
-        virtualBox.z = Math.max(virtualBox.z, dimensions.z);
+    function Background(object) {
+      _classCallCheck(this, Background);
+
+      if (object && object._isLivreObject) {
+        var _style = object.style;
+        if (!_style) {
+          throw new Error('Object does not have a style property!');
+        }
+        var bgColor = object.style['background-color'];
+        var dimensions = object.dimensions;
+        var material = new THREE.MeshPhongMaterial({
+          color: object.style['background-color']
+        });
+        var geometry = new THREE.PlaneGeometry(dimensions.x, dimensions.y);
+
+        var _this = _possibleConstructorReturn(this, (Background.__proto__ || Object.getPrototypeOf(Background)).call(this, geometry, material));
+
+        _this._isBackground = true;
+        _this._ignoreSize = true;
+      } else {
+        throw new Error('Invalid object!');
       }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
+      return _possibleConstructorReturn(_this);
+    }
+
+    return Background;
+  }(THREE.PlaneGeometry);
+
+  /*
+   * Gives the object's world dimensions in a boundary box.
+   */
+
+
+  function getDimensions(object) {
+    if (object._isLivreObject) {
+      var virtualBox = {
+        x: 0,
+        y: 0,
+        z: 0
+      };
+      var _iteratorNormalCompletion = true;
+      var _didIteratorError = false;
+      var _iteratorError = undefined;
+
       try {
-        if (!_iteratorNormalCompletion && _iterator.return) {
-          _iterator.return();
+        for (var _iterator = object.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+          var child = _step.value;
+
+          if (!child._ignoreSize) {
+            var dimensions = getDimensions(child);
+            virtualBox.x = Math.max(virtualBox.x, dimensions.x);
+            virtualBox.y += dimensions.y;
+            virtualBox.z = Math.max(virtualBox.z, dimensions.z);
+          }
         }
+      } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
       } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
+        try {
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
+          }
+        } finally {
+          if (_didIteratorError) {
+            throw _iteratorError;
+          }
         }
       }
-    }
 
-    return virtualBox;
-  } else {
-    var bbox = new THREE.Box3().setFromObject(object);
+      return virtualBox;
+    } else {
+      var bbox = new THREE.Box3().setFromObject(object);
+      return {
+        x: bbox.max.x - bbox.min.x,
+        y: bbox.max.y - bbox.min.y,
+        z: bbox.max.z - bbox.min.z
+      };
+    }
+  }
+
+  /*
+   * Gives the object's world boundaries relative to its position point.
+   * Three.js uses the right-hand coordinate system, so:
+   * - the x axis grows to the right;
+   * - the y axis grows to the top;
+   * - the z axis grows to the near.
+   */
+  function getBoundaries(object) {
+    if (object._isLivreObject) {
+      var dimensions = object.dimensions;
+      return {
+        left: 0,
+        right: dimensions.x,
+        top: dimensions.y,
+        bottom: 0,
+        far: 0,
+        near: dimensions.z
+      };
+    } else {
+      var position = new THREE.Vector3();
+      position.setFromMatrixPosition(object.matrixWorld);
+      var bbox = new THREE.Box3().setFromObject(object);
+      return {
+        left: position.x - bbox.min.x,
+        right: bbox.max.x - position.x,
+        top: bbox.max.y - position.y,
+        bottom: position.y - bbox.min.y,
+        far: position.z - bbox.min.z,
+        near: bbox.max.z - position.z
+      };
+    }
+  }
+
+  function makeInitialPosition() {
     return {
-      x: bbox.max.x - bbox.min.x,
-      y: bbox.max.y - bbox.min.y,
-      z: bbox.max.z - bbox.min.z
+      x: { reference: 'left', distance: 0 },
+      y: { reference: 'top', distance: 0 },
+      z: { reference: 'far', distance: 0 }
     };
   }
-}
 
-function makeInitialPosition() {
-  return {
-    x: { reference: 'left', distance: 0 },
-    y: { reference: 'top', distance: 0 },
-    z: { reference: 'far', distance: 0 }
-  };
-}
+  /*
+   * Returns the world position that the child should have
+   * given its relative position to the parent.
+   */
+  function makeWorldPosition(childObject, parentObject, offset) {
+    var parentBoundaries = parentObject.boundaries;
+    var parentDimensions = parentObject.dimensions;
+    var childBoundaries = childObject._isLivreObject ? null : getBoundaries(childObject);
 
-/*
- * Returns the world position that the child should have
- * given its relative position to the parent.
- */
-function makeWorldPosition(childObject, parentObject, offset) {
-  var parentBoundaries = parentObject.boundaries;
-  var parentDimensions = parentObject.dimensions;
-  var childBoundaries = childObject._isLivreObject ? null : getBoundaries(childObject);
-  if (childBoundaries) console.log(childBoundaries.top);
+    var position = {};
 
-  var position = {};
-
-  var _arr = ['x', 'y', 'z'];
-  for (var _i = 0; _i < _arr.length; _i++) {
-    var axis = _arr[_i];
-    position[axis] = offset[axis].distance;
-    if (!childObject._isLivreObject) {
-      position[axis] += childBoundaries[offset[axis].reference];
+    var _arr = ['x', 'y', 'z'];
+    for (var _i = 0; _i < _arr.length; _i++) {
+      var axis = _arr[_i];
+      position[axis] = offset[axis].distance;
+      if (!childObject._isLivreObject) {
+        position[axis] += childBoundaries[offset[axis].reference];
+      }
+      switch (offset[axis].reference) {
+        case 'right':
+        case 'top':
+        case 'near':
+          position[axis] = -position[axis];
+          break;
+        default:
+          break;
+      }
     }
-    switch (offset[axis].reference) {
-      case 'right':
-      case 'top':
-      case 'near':
-        position[axis] = -position[axis];
-      default:
-        break;
-    }
-  }
-  return position;
-}
-
-function positionChildren(parentObject) {
-  var offset = makeInitialPosition();
-  for (var i = 0; i < parentObject.children.length; i++) {
-    var child = parentObject.children[i];
-    var position = makeWorldPosition(child, parentObject, offset);
-    var _arr2 = ['x', 'y', 'z'];
-    for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
-      var axis = _arr2[_i2];
-      child.position[axis] = position[axis];
-    }
-    if (child._isLivreObject) {
-      positionChildren(child);
-    }
-    offset.y.distance += getDimensions(child).y;
-  }
-}
-
-var Object3D = function (_THREE$Object3D) {
-  _inherits(Object3D, _THREE$Object3D);
-
-  function Object3D(mesh) {
-    _classCallCheck(this, Object3D);
-
-    var _this = _possibleConstructorReturn(this, (Object3D.__proto__ || Object.getPrototypeOf(Object3D)).call(this));
-
-    _this._isLivreObject = true;
-
-    if (mesh) {
-      _this.add(mesh);
-    }
-    return _this;
+    return position;
   }
 
-  _createClass(Object3D, [{
-    key: 'arrangeChildren',
-    value: function arrangeChildren() {
-      positionChildren(this);
-    }
-  }, {
-    key: 'setWorldPosition',
-    value: function setWorldPosition(parentObject, offset) {
-      parentObject = parentObject || this.parent;
-      offset = offset || makeInitialPosition();
+  function positionChildren(parentObject) {
+    var offset = makeInitialPosition();
+    for (var i = 0; i < parentObject.children.length; i++) {
+      var child = parentObject.children[i];
+      var position = void 0;
 
-      var position = makeWorldPosition(this, parentObject, offset);
-      for (var prop in position) {
-        if (position.hasOwnProperty(prop)) {
-          this.position[prop] = position[prop];
+      if (child._isBackground) {
+        child = new Background(parentObject);
+        position = makeWorldPosition(child, parentObject, makeInitialPosition());
+      } else {
+        position = makeWorldPosition(child, parentObject, offset);
+        offset.y.distance += getDimensions(child).y;
+      }
+      var _arr2 = ['x', 'y', 'z'];
+      for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
+        var axis = _arr2[_i2];
+        child.position[axis] = position[axis];
+      }
+      if (child._isLivreObject) {
+        positionChildren(child);
+      }
+    }
+  }
+
+  var Object3D = function (_THREE$Object3D) {
+    _inherits(Object3D, _THREE$Object3D);
+
+    function Object3D(options) {
+      _classCallCheck(this, Object3D);
+
+      options = options && (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' ? options : {};
+
+      if (options.hypertext) {
+        var _ret;
+
+        return _ret = ht3d.parse(options.hypertext), _possibleConstructorReturn(_this2, _ret);
+      }
+
+      if (options.template) {
+        var _ret2;
+
+        var hypertext = theme.templates[options.template]();
+        return _ret2 = ht3d.parse(hypertext), _possibleConstructorReturn(_this2, _ret2);
+      }
+
+      var _this2 = _possibleConstructorReturn(this, (Object3D.__proto__ || Object.getPrototypeOf(Object3D)).call(this));
+
+      if (options.mesh) {
+        _get(Object3D.prototype.__proto__ || Object.getPrototypeOf(Object3D.prototype), 'add', _this2).call(_this2, options.mesh);
+      }
+
+      _this2._stylePromise = new Promise(function (resolve) {
+        _this2._resolveStylePromise = resolve;
+      });
+
+      _this2._isLivreObject = true;
+
+      return _this2;
+    }
+
+    _createClass(Object3D, [{
+      key: 'arrangeChildren',
+      value: function arrangeChildren() {
+        positionChildren(this);
+      }
+    }, {
+      key: 'setWorldPosition',
+      value: function setWorldPosition(parentObject, offset) {
+        parentObject = parentObject || this.parent;
+        offset = offset || makeInitialPosition();
+
+        var position = makeWorldPosition(this, parentObject, offset);
+        for (var prop in position) {
+          if (position.hasOwnProperty(prop)) {
+            this.position[prop] = position[prop];
+          }
         }
       }
-    }
+    }, {
+      key: 'setProperty',
+      value: function setProperty(property, value) {
+        var _this3 = this;
 
-    // Overrides THREE.Object3D's add function
+        if (property && typeof property === 'string' && value && typeof value === 'string') {
+          this._ht3d = this._ht3d ? this._ht3d : {};
+          this._ht3d[property] = value;
 
-  }, {
-    key: 'add',
-    value: function add(object) {
-      THREE.Object3D.prototype.add.call(this, object);
-
-      var topObject = this;
-      while (topObject.parent && topObject.parent._isLivreObject) {
-        topObject = topObject.parent;
+          switch (property) {
+            case 'text':
+              this._style.then(function (style) {
+                text.make(value, style).then(function (newText) {
+                  _this3.add(newText);
+                });
+              });
+              break;
+          }
+        } else {
+          throw new Error('Invalid inputs!');
+        }
       }
-      topObject.arrangeChildren();
-    }
-  }, {
-    key: 'dimensions',
-    get: function get() {
-      return getDimensions(this);
-    }
-  }, {
-    key: 'boundaries',
-    get: function get() {
-      return getBoundaries(this);
-    }
-  }]);
+    }, {
+      key: 'makeStyle',
+      value: function makeStyle() {
+        var styleObject = style.make(theme.stylesheets, this);
+        this._style = styleObject;
+        this.resolveStylePromise(styleObject);
+      }
+
+      // Overrides THREE.Object3D's add function
+
+    }, {
+      key: 'add',
+      value: function add(object, options) {
+        THREE.Object3D.prototype.add.call(this, object);
+
+        if (options && options.rearrange) {
+          var topObject = this;
+          while (topObject.parent && topObject.parent._isLivreObject) {
+            topObject = topObject.parent;
+          }
+          topObject.arrangeChildren();
+        }
+      }
+    }, {
+      key: 'dimensions',
+      get: function get() {
+        return getDimensions(this);
+      }
+    }, {
+      key: 'boundaries',
+      get: function get() {
+        return getBoundaries(this);
+      }
+    }]);
+
+    return Object3D;
+  }(THREE.Object3D);
 
   return Object3D;
-}(THREE.Object3D);
+};
 
-module.exports = Object3D;
-
-},{"three":310}],312:[function(require,module,exports){
+},{"./ht3d.js":309,"./style.js":313,"./text.js":314,"three":311}],313:[function(require,module,exports){
 /*
  * style.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -51787,7 +51851,6 @@ module.exports = function (options) {
   }
 
   // Iterates the array of stylesheets and apply relevant styles to the object.
-  // Assigns results to object._style.
   function make(styleArray, object) {
     var results = {};
 
@@ -51847,7 +51910,7 @@ module.exports = function (options) {
 
           if (style[origProp]) {
             for (var selector in style[origProp]) {
-              if (style[origProp].hasOwnProperty(selector) && check(object[destProp], selector)) {
+              if (style[origProp].hasOwnProperty(selector) && check(object.ht3d[destProp], selector)) {
                 copyProps(style[origProp][selector]);
               }
             }
@@ -51869,12 +51932,13 @@ module.exports = function (options) {
       }
     }
 
-    copyDefaults();
-    copy('tags', '_tag', checkEqual);
-    copy('classes', '_class', checkIndex);
-    copy('ids', '_id', checkEqual);
-
-    object._style = results;
+    if (object._ht3d) {
+      copyDefaults();
+      copy('tags', 'tag', checkEqual);
+      copy('classes', 'class', checkIndex);
+      copy('ids', 'id', checkEqual);
+    }
+    return results;
   }
 
   return {
@@ -51883,7 +51947,40 @@ module.exports = function (options) {
   };
 };
 
-},{"three":310}],313:[function(require,module,exports){
+},{"three":311}],314:[function(require,module,exports){
+'use strict';
+
+var THREE = require('three');
+var Object3D = require('./object3d.js');
+
+module.exports = function (fonts) {
+
+  function makeText(text, style) {
+    var fontPromise = fonts[style['font-family'] + '-' + style['font-weight']].dataPromise;
+
+    return new Promise(function (resolve) {
+      fontPromise.then(function (font) {
+        var geometry = new THREE.TextGeometry(text, {
+          font: font,
+          size: style['font-size'],
+          height: style['font-size'] * 0.2,
+          curveSegments: 12
+        });
+        var material = new THREE.MeshPhongMaterial({ color: style['color'] });
+        var mesh = new THREE.Mesh(geometry, material);
+        var newObject = new Object3D({ mesh: mesh });
+
+        resolve(newObject);
+      });
+    });
+  }
+
+  return {
+    make: makeText
+  };
+};
+
+},{"./object3d.js":312,"three":311}],315:[function(require,module,exports){
 /*
  * click.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
