@@ -7319,56 +7319,56 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Object3D = require('./object3d.js');
+module.exports = function (Object3D) {
+  var Body = function (_Object3D) {
+    _inherits(Body, _Object3D);
 
-var Body = function (_Object3D) {
-  _inherits(Body, _Object3D);
+    function Body(aspectRatio, dimensions) {
+      _classCallCheck(this, Body);
 
-  function Body(aspectRatio, dimensions) {
-    _classCallCheck(this, Body);
+      var _this = _possibleConstructorReturn(this, (Body.__proto__ || Object.getPrototypeOf(Body)).call(this));
 
-    var _this = _possibleConstructorReturn(this, (Body.__proto__ || Object.getPrototypeOf(Body)).call(this));
-
-    _this._aspect = aspectRatio;
-    _this._dimensions = dimensions;
-    return _this;
-  }
-
-  _createClass(Body, [{
-    key: 'boundaries',
-    get: function get() {
-      return {
-        left: 0,
-        right: this._dimensions.width,
-        top: 0,
-        bottom: this._dimensions.width / this._aspect,
-        far: 0,
-        near: this._dimensions.far - this._dimensions.near
-      };
+      _this._aspect = aspectRatio;
+      _this._dimensions = dimensions;
+      return _this;
     }
-  }, {
-    key: 'dimensions',
-    get: function get() {
-      return {
-        x: this._dimensions.width,
-        y: this._dimensions.width / this._aspect,
-        z: this._dimensions.far - this._dimensions.near
-      };
-    }
-  }, {
-    key: 'aspectRatio',
-    set: function set(value) {
-      this._aspect = value;
-      this.arrangeChildren();
-    }
-  }]);
+
+    _createClass(Body, [{
+      key: 'boundaries',
+      get: function get() {
+        return {
+          left: 0,
+          right: this._dimensions.width,
+          top: 0,
+          bottom: this._dimensions.width / this._aspect,
+          far: 0,
+          near: this._dimensions.far - this._dimensions.near
+        };
+      }
+    }, {
+      key: 'dimensions',
+      get: function get() {
+        return {
+          x: this._dimensions.width,
+          y: this._dimensions.width / this._aspect,
+          z: this._dimensions.far - this._dimensions.near
+        };
+      }
+    }, {
+      key: 'aspectRatio',
+      set: function set(value) {
+        this._aspect = value;
+        this.arrangeChildren();
+      }
+    }]);
+
+    return Body;
+  }(Object3D);
 
   return Body;
-}(Object3D);
+};
 
-module.exports = Body;
-
-},{"./object3d.js":312}],307:[function(require,module,exports){
+},{}],307:[function(require,module,exports){
 /*
  * camera.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -7438,17 +7438,13 @@ module.exports = Camera;
 
 module.exports = function (options) {
 
-  var ht3d = require('./ht3d.js'),
-      style = require('./style.js')(),
-      Body = require('./body.js'),
-      Camera = require('./camera.js');
-
   var THREE = require('three');
 
   var theme = options.theme;
-  theme.resources = style.loadResources(theme.stylesheets);
 
   var Object3D = require('./object3d.js')(theme);
+  var Body = require('./body.js')(Object3D);
+  var Camera = require('./camera.js');
 
   var far = theme.worldWidth / (2 * Math.tan(theme.hfov / 2 * Math.PI / 180));
   var dimensions = {
@@ -7457,7 +7453,11 @@ module.exports = function (options) {
     near: far * theme.nearFarRatio
   };
 
-  var scene, body, lights, camera;
+  var scene, lights;
+
+  var camera = new Camera(window.innerWidth / window.innerHeight, theme.hfov, dimensions);
+
+  var body = new Body(window.innerWidth / window.innerHeight, dimensions);
 
   var renderer = new THREE.WebGLRenderer({
     antialias: true
@@ -7492,8 +7492,6 @@ module.exports = function (options) {
     if (theme.background) {
       scene.background = new THREE.Color(theme.background);
     }
-
-    camera = new Camera(window.innerWidth / window.innerHeight, theme.hfov, dimensions);
 
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
@@ -7566,9 +7564,7 @@ module.exports = function (options) {
   };
 };
 
-},{"./body.js":306,"./camera.js":307,"./ht3d.js":309,"./object3d.js":312,"./style.js":313,"./utils/click.js":315,"three":311}],309:[function(require,module,exports){
-'use strict';
-
+},{"./body.js":306,"./camera.js":307,"./object3d.js":312,"./utils/click.js":315,"three":311}],309:[function(require,module,exports){
 /*
  * ht3d.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -7577,9 +7573,9 @@ module.exports = function (options) {
  * Part of the Livre project.
  */
 
-var Object3D = require('./object3d.js');
+'use strict';
 
-function parse(html) {
+function parse(html, Object3D) {
 
   var array = html.split('>');
   for (var index = 0; index < array.length; index++) {
@@ -7685,8 +7681,8 @@ function parse(html) {
         } else {
           parseTagLine(line);
         }
-      } else if (currentObject) {
-        currentObject._text = line;
+      } else if (currentObject && line) {
+        currentObject.setProperty('text', line);
       }
     }
   } catch (err) {
@@ -7707,11 +7703,9 @@ function parse(html) {
   return currentObject;
 }
 
-module.exports = {
-  parse: parse
-};
+module.exports.parse = parse;
 
-},{"./object3d.js":312}],310:[function(require,module,exports){
+},{}],310:[function(require,module,exports){
 /*
  * index.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -51443,12 +51437,13 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-module.exports = function (theme) {
+module.exports = function (theme, options) {
 
   var THREE = require('three');
 
   var ht3d = require('./ht3d.js');
-  var style = require('./style.js');
+  var style = require('./style.js')(options);
+  theme.resources = style.loadResources(theme.stylesheets);
   var text = require('./text.js')(theme.resources.fonts);
 
   var Background = function (_THREE$PlaneGeometry) {
@@ -51637,22 +51632,22 @@ module.exports = function (theme) {
     function Object3D(options) {
       _classCallCheck(this, Object3D);
 
+      var _this2 = _possibleConstructorReturn(this, (Object3D.__proto__ || Object.getPrototypeOf(Object3D)).call(this));
+
       options = options && (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' ? options : {};
 
       if (options.hypertext) {
         var _ret;
 
-        return _ret = ht3d.parse(options.hypertext), _possibleConstructorReturn(_this2, _ret);
+        return _ret = ht3d.parse(options.hypertext, Object3D), _possibleConstructorReturn(_this2, _ret);
       }
 
       if (options.template) {
         var _ret2;
 
         var hypertext = theme.templates[options.template]();
-        return _ret2 = ht3d.parse(hypertext), _possibleConstructorReturn(_this2, _ret2);
+        return _ret2 = ht3d.parse(hypertext, Object3D), _possibleConstructorReturn(_this2, _ret2);
       }
-
-      var _this2 = _possibleConstructorReturn(this, (Object3D.__proto__ || Object.getPrototypeOf(Object3D)).call(this));
 
       if (options.mesh) {
         _get(Object3D.prototype.__proto__ || Object.getPrototypeOf(Object3D.prototype), 'add', _this2).call(_this2, options.mesh);
@@ -51690,15 +51685,15 @@ module.exports = function (theme) {
       value: function setProperty(property, value) {
         var _this3 = this;
 
-        if (property && typeof property === 'string' && value && typeof value === 'string') {
+        if (property && typeof property === 'string' && value) {
           this._ht3d = this._ht3d ? this._ht3d : {};
           this._ht3d[property] = value;
 
           switch (property) {
             case 'text':
-              this._style.then(function (style) {
+              this._stylePromise.then(function (style) {
                 text.make(value, style).then(function (newText) {
-                  _this3.add(newText);
+                  _this3.add(newText, { rearrange: true });
                 });
               });
               break;
@@ -51712,7 +51707,7 @@ module.exports = function (theme) {
       value: function makeStyle() {
         var styleObject = style.make(theme.stylesheets, this);
         this._style = styleObject;
-        this.resolveStylePromise(styleObject);
+        this._resolveStylePromise(styleObject);
       }
 
       // Overrides THREE.Object3D's add function
@@ -51910,7 +51905,7 @@ module.exports = function (options) {
 
           if (style[origProp]) {
             for (var selector in style[origProp]) {
-              if (style[origProp].hasOwnProperty(selector) && check(object.ht3d[destProp], selector)) {
+              if (style[origProp].hasOwnProperty(selector) && check(object._ht3d[destProp], selector)) {
                 copyProps(style[origProp][selector]);
               }
             }
@@ -51951,7 +51946,6 @@ module.exports = function (options) {
 'use strict';
 
 var THREE = require('three');
-var Object3D = require('./object3d.js');
 
 module.exports = function (fonts) {
 
@@ -51968,9 +51962,8 @@ module.exports = function (fonts) {
         });
         var material = new THREE.MeshPhongMaterial({ color: style['color'] });
         var mesh = new THREE.Mesh(geometry, material);
-        var newObject = new Object3D({ mesh: mesh });
 
-        resolve(newObject);
+        resolve(mesh);
       });
     });
   }
@@ -51980,7 +51973,7 @@ module.exports = function (fonts) {
   };
 };
 
-},{"./object3d.js":312,"three":311}],315:[function(require,module,exports){
+},{"three":311}],315:[function(require,module,exports){
 /*
  * click.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
