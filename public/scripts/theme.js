@@ -51845,30 +51845,71 @@ module.exports = function (options) {
     return results;
   }
 
-  // Iterates the array of stylesheets and apply relevant styles to the object.
-  function make(styleArray, object) {
+  function checkSpacers(property, value) {
+    return (property === 'margin' || property === 'padding') && (typeof value === 'number' || typeof value === 'string');
+  }
+
+  function parseSpacers(property, value) {
     var results = {};
+    var directions = ['top', 'right', 'bottom', 'left', 'far', 'near'];
 
-    function copyProps(selector) {
-      for (var property in selector) {
-        if (selector.hasOwnProperty(property)) {
-          results[property] = selector[property];
-        }
+    if (typeof value === 'string') {
+      var values = value.split(' ');
+      for (var i = 0; i < values.length; i++) {
+        values[i] = Number(values[i]);
       }
-    }
 
-    function copyDefaults() {
+      switch (values.length) {
+        case 1:
+          results[property + '-' + 'top'] = results[property + '-' + 'right'] = results[property + '-' + 'bottom'] = results[property + '-' + 'left'] = values[0];
+
+          results[property + '-' + 'far'] = results[property + '-' + 'near'] = 0;
+          break;
+        case 2:
+          results[property + '-' + 'top'] = results[property + '-' + 'bottom'] = values[0];
+
+          results[property + '-' + 'left'] = results[property + '-' + 'right'] = values[1];
+
+          results[property + '-' + 'far'] = results[property + '-' + 'near'] = 0;
+          break;
+        case 3:
+          results[property + '-' + 'top'] = values[0];
+          results[property + '-' + 'bottom'] = values[1];
+
+          results[property + '-' + 'left'] = results[property + '-' + 'right'] = values[2];
+
+          results[property + '-' + 'far'] = results[property + '-' + 'near'] = 0;
+          break;
+        case 4:
+        case 5:
+        case 6:
+          for (var _i = 0; _i < values.length; _i++) {
+            results[property + '-' + directions[_i]] = values[_i];
+          }
+          for (var _i2 = directions.length - 1; _i2 >= values.length; _i2--) {
+            results[property + '-' + directions[_i2]] = 0;
+          }
+          if (values.length === 5) {
+            results[property + '-' + 'near'] = results[property + '-' + 'far'];
+          }
+          break;
+        default:
+          throw new Error('Invalid number of values!');
+      }
+    } else if (typeof value === 'number') {
+      results[property + '-' + 'top'] = results[property + '-' + 'right'] = results[property + '-' + 'bottom'] = results[property + '-' + 'left'] = value;
+      results[property + '-' + 'far'] = results[property + '-' + 'near'] = 0;
+    } else {
+      // Invalid value, let's assume zero
       var _iteratorNormalCompletion2 = true;
       var _didIteratorError2 = false;
       var _iteratorError2 = undefined;
 
       try {
-        for (var _iterator2 = styleArray[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var style = _step2.value;
+        for (var _iterator2 = directions[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var direction = _step2.value;
 
-          if (style.defaults) {
-            copyProps(style.defaults);
-          }
+          results[property + '-' + direction] = 0;
         }
       } catch (err) {
         _didIteratorError2 = true;
@@ -51886,15 +51927,30 @@ module.exports = function (options) {
       }
     }
 
-    function checkEqual(property, selector) {
-      return property === selector;
+    return results;
+  }
+
+  // Iterates the array of stylesheets and apply relevant styles to the object.
+  function make(styleArray, object) {
+    var results = {};
+
+    function copyProps(selector) {
+      for (var property in selector) {
+        if (selector.hasOwnProperty(property)) {
+          if (checkSpacers(property, selector[property])) {
+            var spacers = parseSpacers(property, selector[property]);
+            for (var key in spacers) {
+              if (spacers.hasOwnProperty(key)) {
+                results[key] = spacers[key];
+              }
+            }
+          }
+          results[property] = selector[property];
+        }
+      }
     }
 
-    function checkIndex(property, selector) {
-      return property.indexOf(selector) !== -1;
-    }
-
-    function copy(origProp, destProp, check) {
+    function copyDefaults() {
       var _iteratorNormalCompletion3 = true;
       var _didIteratorError3 = false;
       var _iteratorError3 = undefined;
@@ -51903,12 +51959,8 @@ module.exports = function (options) {
         for (var _iterator3 = styleArray[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
           var style = _step3.value;
 
-          if (style[origProp]) {
-            for (var selector in style[origProp]) {
-              if (style[origProp].hasOwnProperty(selector) && check(object._ht3d[destProp], selector)) {
-                copyProps(style[origProp][selector]);
-              }
-            }
+          if (style.defaults) {
+            copyProps(style.defaults);
           }
         }
       } catch (err) {
@@ -51922,6 +51974,47 @@ module.exports = function (options) {
         } finally {
           if (_didIteratorError3) {
             throw _iteratorError3;
+          }
+        }
+      }
+    }
+
+    function checkEqual(property, selector) {
+      return property === selector;
+    }
+
+    function checkIndex(property, selector) {
+      return property.indexOf(selector) !== -1;
+    }
+
+    function copy(origProp, destProp, check) {
+      var _iteratorNormalCompletion4 = true;
+      var _didIteratorError4 = false;
+      var _iteratorError4 = undefined;
+
+      try {
+        for (var _iterator4 = styleArray[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+          var style = _step4.value;
+
+          if (style[origProp]) {
+            for (var selector in style[origProp]) {
+              if (style[origProp].hasOwnProperty(selector) && check(object._ht3d[destProp], selector)) {
+                copyProps(style[origProp][selector]);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        _didIteratorError4 = true;
+        _iteratorError4 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+            _iterator4.return();
+          }
+        } finally {
+          if (_didIteratorError4) {
+            throw _iteratorError4;
           }
         }
       }
