@@ -1,6 +1,14 @@
 'use strict';
 
 module.exports = {
+  'tags': {
+    'body': {
+      'padding': '1 2'
+    },
+    'p': {
+      'margin': 2
+    }
+  },
   'ids': {
     'logo': {
       'color': 0x00aa00,

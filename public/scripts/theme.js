@@ -112,6 +112,24 @@ module.exports['shell'] = function template(locals) {
         pug_html = pug_html + pug.escape(null == (pug_interp = 'Welcome, ' + user.name) ? "" : pug_interp) + '</p>';
       }
       pug_html = pug_html + '</div>';
+      ;pug_debug_line = 1;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div id="text-container">';
+      ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p>';
+      ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Este \xE9 um par\xE1grafo!</p>';
+      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p>';
+      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'This is a paragraph!</p>';
+      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p>';
+      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, scratch me there, elevator butt so Gate keepers of hell gnaw the corn cob. Step on your keyboard while you\'re gaming and then turn in a circle chase mice, so kitty loves pigs and wack the mini furry mouse have my breakfast spaghetti yarn all of a sudden cat goes crazy. Nap all day hopped up on catnip, or hack up furballs chase laser meow meow. Eat and than sleep on your face refuse to drink water except out of someone\'s glass so give me attention or</p>';
+      ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p>';
+      ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'C\'est un paragraph!</p></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
@@ -7296,6 +7314,14 @@ module.exports = {
 'use strict';
 
 module.exports = {
+  'tags': {
+    'body': {
+      'padding': '1 2'
+    },
+    'p': {
+      'margin': 2
+    }
+  },
   'ids': {
     'logo': {
       'color': 0x00aa00,
@@ -7330,6 +7356,9 @@ module.exports = function (Object3D) {
 
       _this._aspect = aspectRatio;
       _this._dimensions = dimensions;
+
+      _this._ht3d = { tag: 'body' };
+      _this.makeStyle();
       return _this;
     }
 
@@ -7614,7 +7643,7 @@ function parse(html, Object3D) {
 
   function closeTag() {
     if (currentObject) {
-      currentObject.makeStyle();
+      currentObject.makeText();
 
       if (currentObject.parent) {
         currentObject = currentObject.parent;
@@ -7654,6 +7683,8 @@ function parse(html, Object3D) {
           }
         }
       }
+
+      object.makeStyle();
 
       if (currentObject) {
         currentObject.add(object);
@@ -51482,7 +51513,7 @@ module.exports = function (theme, options) {
    */
 
 
-  function getDimensions(object) {
+  function getDimensions(object, options) {
     if (object._isLivreObject) {
       var virtualBox = {
         x: 0,
@@ -51498,7 +51529,7 @@ module.exports = function (theme, options) {
           var child = _step.value;
 
           if (!child._ignoreSize) {
-            var dimensions = getDimensions(child);
+            var dimensions = getDimensions(child, { includeMargin: true });
             virtualBox.x = Math.max(virtualBox.x, dimensions.x);
             virtualBox.y += dimensions.y;
             virtualBox.z = Math.max(virtualBox.z, dimensions.z);
@@ -51519,6 +51550,17 @@ module.exports = function (theme, options) {
         }
       }
 
+      var style = object._style;
+      virtualBox.x += style['padding-left'] + style['padding-right'];
+      virtualBox.y += style['padding-top'] + style['padding-bottom'];
+      virtualBox.z += style['padding-far'] + style['padding-near'];
+
+      if (options && options.includeMargin) {
+        virtualBox.x += style['margin-left'] + style['margin-right'];
+        virtualBox.y += style['margin-top'] + style['margin-bottom'];
+        virtualBox.z += style['margin-far'] + style['margin-near'];
+      }
+
       return virtualBox;
     } else {
       var bbox = new THREE.Box3().setFromObject(object);
@@ -51527,6 +51569,14 @@ module.exports = function (theme, options) {
         y: bbox.max.y - bbox.min.y,
         z: bbox.max.z - bbox.min.z
       };
+    }
+  }
+
+  function getSpacer(object, direction) {
+    if (object._isLivreObject) {
+      return object._style['margin-' + direction] + object._style['padding-' + direction];
+    } else {
+      return 0;
     }
   }
 
@@ -51604,6 +51654,10 @@ module.exports = function (theme, options) {
 
   function positionChildren(parentObject) {
     var offset = makeInitialPosition();
+    offset.x.distance += getSpacer(parentObject, 'left');
+    offset.y.distance += getSpacer(parentObject, 'top');
+    offset.z.distance += getSpacer(parentObject, 'far');
+
     for (var i = 0; i < parentObject.children.length; i++) {
       var child = parentObject.children[i];
       var position = void 0;
@@ -51613,7 +51667,7 @@ module.exports = function (theme, options) {
         position = makeWorldPosition(child, parentObject, makeInitialPosition());
       } else {
         position = makeWorldPosition(child, parentObject, offset);
-        offset.y.distance += getDimensions(child).y;
+        offset.y.distance += getDimensions(child, { includeMargin: true }).y;
       }
       var _arr2 = ['x', 'y', 'z'];
       for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
@@ -51653,10 +51707,6 @@ module.exports = function (theme, options) {
         _get(Object3D.prototype.__proto__ || Object.getPrototypeOf(Object3D.prototype), 'add', _this2).call(_this2, options.mesh);
       }
 
-      _this2._stylePromise = new Promise(function (resolve) {
-        _this2._resolveStylePromise = resolve;
-      });
-
       _this2._isLivreObject = true;
 
       return _this2;
@@ -51683,21 +51733,9 @@ module.exports = function (theme, options) {
     }, {
       key: 'setProperty',
       value: function setProperty(property, value) {
-        var _this3 = this;
-
         if (property && typeof property === 'string' && value) {
           this._ht3d = this._ht3d ? this._ht3d : {};
           this._ht3d[property] = value;
-
-          switch (property) {
-            case 'text':
-              this._stylePromise.then(function (style) {
-                text.make(value, style).then(function (newText) {
-                  _this3.add(newText, { rearrange: true });
-                });
-              });
-              break;
-          }
         } else {
           throw new Error('Invalid inputs!');
         }
@@ -51705,9 +51743,18 @@ module.exports = function (theme, options) {
     }, {
       key: 'makeStyle',
       value: function makeStyle() {
-        var styleObject = style.make(theme.stylesheets, this);
-        this._style = styleObject;
-        this._resolveStylePromise(styleObject);
+        this._style = style.make(theme.stylesheets, this);
+      }
+    }, {
+      key: 'makeText',
+      value: function makeText() {
+        var _this3 = this;
+
+        if (this._ht3d && this._ht3d.text) {
+          text.make(this._ht3d.text, this._style).then(function (newText) {
+            _this3.add(newText, { rearrange: true });
+          });
+        }
       }
 
       // Overrides THREE.Object3D's add function
