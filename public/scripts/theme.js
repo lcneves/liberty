@@ -125,11 +125,11 @@ module.exports['shell'] = function template(locals) {
       ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, scratch me there, elevator butt so Gate keepers of hell gnaw the corn cob. Step on your keyboard while you\'re gaming and then turn in a circle chase mice, so kitty loves pigs and wack the mini furry mouse have my breakfast spaghetti yarn all of a sudden cat goes crazy. Nap all day hopped up on catnip, or hack up furballs chase laser meow meow. Eat and than sleep on your face refuse to drink water except out of someone\'s glass so give me attention or</p>';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, scratch me there, elevator butt so Gate keepers of hell gnaw the corn cob. Step on your keyboard while you\'re gaming and then turn in a circle chase mice,</p>';
       ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'C\'est un paragraph!</p></div>';
+      pug_html = pug_html + 'Ceci est un paragraphe!</p></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
@@ -7257,6 +7257,7 @@ module.exports = {
     'depth': 'initial',
     'font-family': 'sans-serif',
     'font-size': 1,
+    'font-height': 0,
     'font-weight': 'regular',
     'color': 0x000000
   },
@@ -7280,32 +7281,39 @@ module.exports = {
 
     'h1': {
       'display': 'block',
-      'font-size': 6
+      'font-size': 6,
+      'font-height': 1.5
     },
 
     'h2': {
       'display': 'block',
-      'font-size': 5
+      'font-size': 5,
+      'font-height': 1.25
     },
 
     'h3': {
       'display': 'block',
-      'font-size': 4
+      'font-size': 4,
+      'font-height': 1
     },
 
     'h4': {
       'display': 'block',
-      'font-size': 3
+      'font-size': 3,
+      'font-height': 0.75
     },
 
     'h5': {
       'display': 'block',
-      'font-size': 2
+      'font-size': 2,
+      'font-height': 0.5
+
     },
 
     'h6': {
       'display': 'block',
-      'font-size': 1
+      'font-size': 1.5,
+      'font-height': 0.375
     }
   }
 };
@@ -51456,11 +51464,11 @@ module.exports.init = function (theme) {
 
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -51508,13 +51516,29 @@ module.exports = function (theme, options) {
     return Background;
   }(THREE.PlaneGeometry);
 
+  function getDirectionAxis(direction) {
+    var directionAxis;
+    switch (direction) {
+      case 'row':
+        directionAxis = 'x';
+        break;
+      case 'stack':
+        directionAxis = 'z';
+        break;
+      default:
+        directionAxis = 'y';
+        break;
+    }
+    return directionAxis;
+  }
+
   /*
    * Gives the object's world dimensions in a boundary box.
+   * By default, does not include margins; only paddings.
    */
-
-
   function getDimensions(object, options) {
     if (object._isLivreObject) {
+      options = (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' && options !== null ? options : {};
       var virtualBox = {
         x: 0,
         y: 0,
@@ -51530,9 +51554,16 @@ module.exports = function (theme, options) {
 
           if (!child._ignoreSize) {
             var dimensions = getDimensions(child, { includeMargin: true });
-            virtualBox.x = Math.max(virtualBox.x, dimensions.x);
-            virtualBox.y += dimensions.y;
-            virtualBox.z = Math.max(virtualBox.z, dimensions.z);
+            var _arr = ['x', 'y', 'z'];
+            for (var _i = 0; _i < _arr.length; _i++) {
+              var axis = _arr[_i];
+              var directionAxis = getDirectionAxis(options.direction);
+              if (axis === directionAxis) {
+                virtualBox[axis] += dimensions[axis];
+              } else {
+                virtualBox[axis] = Math.max(virtualBox[axis], dimensions[axis]);
+              }
+            }
           }
         }
       } catch (err) {
@@ -51632,9 +51663,9 @@ module.exports = function (theme, options) {
 
     var position = {};
 
-    var _arr = ['x', 'y', 'z'];
-    for (var _i = 0; _i < _arr.length; _i++) {
-      var axis = _arr[_i];
+    var _arr2 = ['x', 'y', 'z'];
+    for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
+      var axis = _arr2[_i2];
       position[axis] = offset[axis].distance;
       if (!childObject._isLivreObject) {
         position[axis] += childBoundaries[offset[axis].reference];
@@ -51667,11 +51698,12 @@ module.exports = function (theme, options) {
         position = makeWorldPosition(child, parentObject, makeInitialPosition());
       } else {
         position = makeWorldPosition(child, parentObject, offset);
-        offset.y.distance += getDimensions(child, { includeMargin: true }).y;
+        var directionAxis = getDirectionAxis(parentObject._style['direction']);
+        offset[directionAxis].distance += getDimensions(child, { includeMargin: true })[directionAxis];
       }
-      var _arr2 = ['x', 'y', 'z'];
-      for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
-        var axis = _arr2[_i2];
+      var _arr3 = ['x', 'y', 'z'];
+      for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
+        var axis = _arr3[_i3];
         child.position[axis] = position[axis];
       }
       if (child._isLivreObject) {
@@ -52097,7 +52129,7 @@ module.exports = function (fonts) {
         var geometry = new THREE.TextGeometry(text, {
           font: font,
           size: style['font-size'],
-          height: style['font-size'] * 0.2,
+          height: style['font-height'],
           curveSegments: 12
         });
         var material = new THREE.MeshPhongMaterial({ color: style['color'] });
