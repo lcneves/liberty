@@ -6,7 +6,7 @@ module.exports = {
       'padding': '1 2'
     },
     'p': {
-      'margin': 2
+      'margin': '1 0'
     }
   },
   'ids': {

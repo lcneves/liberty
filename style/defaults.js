@@ -28,15 +28,23 @@ module.exports = {
     'margin': 0,
     'width': 'initial',
     'height': 'initial',
-    'depth': 'initial',
-    'font-family': 'sans-serif',
-    'font-size': 1,
-    'font-height': 0,
-    'font-weight': 'regular',
-    'color': 0x000000
+    'depth': 'initial'
   },
 
   'tags': {
+    'body': {
+      'font-family': 'sans-serif',
+      'font-size': 1,
+      'font-height': 0,
+      'font-weight': 'regular',
+      'color': 0x000000
+    },
+
+    'text': {
+      'display': 'inline',
+      'direction': 'row'
+    },
+
     'surface': {
       'display': 'plane'
     },
