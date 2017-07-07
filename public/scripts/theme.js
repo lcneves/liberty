@@ -7246,15 +7246,23 @@ module.exports = {
     'margin': 0,
     'width': 'initial',
     'height': 'initial',
-    'depth': 'initial',
-    'font-family': 'sans-serif',
-    'font-size': 1,
-    'font-height': 0,
-    'font-weight': 'regular',
-    'color': 0x000000
+    'depth': 'initial'
   },
 
   'tags': {
+    'body': {
+      'font-family': 'sans-serif',
+      'font-size': 1,
+      'font-height': 0,
+      'font-weight': 'regular',
+      'color': 0x000000
+    },
+
+    'text': {
+      'display': 'inline',
+      'direction': 'row'
+    },
+
     'surface': {
       'display': 'plane'
     },
@@ -7571,7 +7579,10 @@ module.exports = function (options) {
   // Functions to be exported.
   // Exported functions get assigned to a variable. Utility functions don't.
   function importTemplate(template, parentObject) {
-    parentObject.add(new Object3D({ template: template }), { rearrange: true });
+    parentObject.add(new Object3D({
+      template: template,
+      setParent: parentObject
+    }), { rearrange: true });
   }
 
   var makeShell = function makeShell() {
@@ -7608,15 +7619,52 @@ var objectHash = require('object-hash');
 
 var cache = {};
 
-function getGeometry(character, options) {
-  var hash = objectHash({ character: character, options: options });
+function makeCharGeometry(character, style) {
+  var hash = objectHash({ character: character, style: style });
 
   console.dir(cache[hash]);
 
-  return cache[hash] ? cache[hash] : cache[hash] = new THREE.TextGeometry(character, options);
-};
+  return cache[hash] ? cache[hash] : cache[hash] = new THREE.TextGeometry(character, style);
+}
 
-module.exports = getGeometry;
+function makeWordGeometry(word, style) {
+  var charArray = word.split('');
+  var offset = 0;
+  var geometry = new THREE.Geometry();
+
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    for (var _iterator = charArray[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      var character = _step.value;
+
+      var charGeometry = makeCharGeometry(character, style);
+      charGeometry.translate(offset, 0, 0);
+      geometry.merge(charGeometry);
+      charGeometry.computeBoundingBox();
+      offset += charGeometry.boundingBox.max.x - charGeometry.boundingBox.min.x;
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+
+  return geometry;
+}
+
+module.exports.makeWordGeometry = makeWordGeometry;
 
 },{"object-hash":312,"three":313}],310:[function(require,module,exports){
 /*
@@ -7629,7 +7677,7 @@ module.exports = getGeometry;
 
 'use strict';
 
-function parse(html, Object3D) {
+function parse(html, parentObject, Object3D) {
 
   var array = html.split('>');
   for (var index = 0; index < array.length; index++) {
@@ -7682,6 +7730,7 @@ function parse(html, Object3D) {
 
     if (tagName) {
       var object = new Object3D();
+      object._parent = parentObject;
       object.setProperty('tag', tagName);
 
       var _iteratorNormalCompletion = true;
@@ -51744,17 +51793,19 @@ module.exports = function (theme, options) {
 
       options = options && (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' ? options : {};
 
+      var parentObject = options.setParent ? options.setParent : null;
+
       if (options.hypertext) {
         var _ret;
 
-        return _ret = ht3d.parse(options.hypertext, Object3D), _possibleConstructorReturn(_this2, _ret);
+        return _ret = ht3d.parse(options.hypertext, parentObject, Object3D), _possibleConstructorReturn(_this2, _ret);
       }
 
       if (options.template) {
         var _ret2;
 
         var hypertext = theme.templates[options.template]();
-        return _ret2 = ht3d.parse(hypertext, Object3D), _possibleConstructorReturn(_this2, _ret2);
+        return _ret2 = ht3d.parse(hypertext, parentObject, Object3D), _possibleConstructorReturn(_this2, _ret2);
       }
 
       if (options.mesh) {
@@ -51767,6 +51818,19 @@ module.exports = function (theme, options) {
     }
 
     _createClass(Object3D, [{
+      key: 'getStyle',
+      value: function getStyle(property) {
+        var currentObject = this;
+        do {
+          if (currentObject._style[property] !== undefined) {
+            return currentObject._style[property];
+          }
+          currentObject = currentObject.parent || currentObject._parent;
+        } while (currentObject.parent || currentObject._parent);
+
+        return undefined;
+      }
+    }, {
       key: 'arrangeChildren',
       value: function arrangeChildren() {
         positionChildren(this);
@@ -51805,7 +51869,13 @@ module.exports = function (theme, options) {
         var _this3 = this;
 
         if (this._ht3d && this._ht3d.text) {
-          text.make(this._ht3d.text, this._style).then(function (newText) {
+          text.make(this._ht3d.text, {
+            'font-family': this.getStyle('font-family'),
+            'font-size': this.getStyle('font-size'),
+            'font-height': this.getStyle('font-height'),
+            'font-weight': this.getStyle('font-weight'),
+            'color': this.getStyle('color')
+          }).then(function (newText) {
             _this3.add(newText, { rearrange: true });
           });
         }
@@ -52142,18 +52212,23 @@ module.exports = function (options) {
 var THREE = require('three');
 var fontCache = require('./font-cache.js');
 
+var CURVE_SEGMENTS = 12;
+
 module.exports = function (fonts) {
 
   function makeText(text, style) {
+    //    var wordStringArray = text.split(' ');
     var fontPromise = fonts[style['font-family'] + '-' + style['font-weight']].dataPromise;
 
     return new Promise(function (resolve) {
       fontPromise.then(function (font) {
-        var geometry = fontCache(text, {
+        //        var geometry = fontCache.makeWordGeometry(text, {
+        var geometry = new THREE.TextGeometry(text, {
           font: font,
           size: style['font-size'],
           height: style['font-height'],
-          curveSegments: 12
+          curveSegments: CURVE_SEGMENTS,
+          bevelEnabled: false
         });
         var material = new THREE.MeshPhongMaterial({ color: style['color'] });
         var mesh = new THREE.Mesh(geometry, material);
