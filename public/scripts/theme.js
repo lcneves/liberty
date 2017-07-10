@@ -117,10 +117,14 @@ module.exports['shell'] = function template(locals) {
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Livre will be a network of free ideas!</p>';
+      pug_html = pug_html + 'Li</p>';
       ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Livre will be a network of free ideas!</p>';
+      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p>';
+      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + 'The project is in active and intense development. Check out the documentation on docs.livre.media</p></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
@@ -51603,6 +51607,47 @@ module.exports = function (theme, options) {
     return directionAxis;
   }
 
+  function getDimensionsFromBbox(bbox) {
+    return {
+      x: bbox.max.x - bbox.min.x,
+      y: bbox.max.y - bbox.min.y,
+      z: bbox.max.z - bbox.min.z
+    };
+  }
+
+  function makeBboxFromImage(image) {
+    var pixelToWorldRatio = 40; //TODO: Find out a logic for this
+    return {
+      min: {
+        x: -image.width / (2 * pixelToWorldRatio),
+        y: -image.height / (2 * pixelToWorldRatio),
+        z: 0
+      },
+      max: {
+        x: image.width / (2 * pixelToWorldRatio),
+        y: image.height / (2 * pixelToWorldRatio),
+        z: 0
+      }
+    };
+  }
+
+  function getBboxFromObject(object) {
+    if (object.geometry) {
+      if (object.geometry.boundingBox === null) {
+        object.geometry.computeBoundingBox();
+      }
+      return object.geometry.boundingBox;
+    } else if ( // Sprites should fall in this category
+    object.material && object.material.map && object.material.map.image && object.material.map.image.width && object.material.map.image.height) {
+      return makeBboxFromImage(object.material.map.image);
+    }
+
+    // Last resort
+    else {
+        return new THREE.Box3().setFromObject(object);
+      }
+  }
+
   /*
    * Gives the object's world dimensions in a boundary box.
    * By default, does not include margins; only paddings.
@@ -51665,12 +51710,8 @@ module.exports = function (theme, options) {
 
       return virtualBox;
     } else {
-      var bbox = new THREE.Box3().setFromObject(object);
-      return {
-        x: bbox.max.x - bbox.min.x,
-        y: bbox.max.y - bbox.min.y,
-        z: bbox.max.z - bbox.min.z
-      };
+      // Not _isLivreObject
+      return getDimensionsFromBbox(getBboxFromObject(object));
     }
   }
 
@@ -51703,7 +51744,7 @@ module.exports = function (theme, options) {
     } else {
       var position = new THREE.Vector3();
       position.setFromMatrixPosition(object.matrixWorld);
-      var bbox = new THREE.Box3().setFromObject(object);
+      var bbox = getBboxFromObject(object);
       return {
         left: position.x - bbox.min.x,
         right: bbox.max.x - position.x,
@@ -51793,6 +51834,10 @@ module.exports = function (theme, options) {
 
       options = options && (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' ? options : {};
 
+      // This passes a parameter to the HT3D parser that will be incorporated
+      // in the resulting Object3D as the `_parent` property. It is necessary
+      // for inheritance of style properties without messing with THREE's 
+      // `parent` property.
       var parentObject = options.setParent ? options.setParent : null;
 
       if (options.hypertext) {
@@ -51869,13 +51914,27 @@ module.exports = function (theme, options) {
         var _this3 = this;
 
         if (this._ht3d && this._ht3d.text) {
+
+          // Headers get rendered in real 3D characters;
+          // other tags get rendered as sprites based on 2D HTML5 canvases
+          var options = {};
+          switch (this._ht3d.tag) {
+            case 'h1':
+            case 'h2':
+            case 'h3':
+            case 'h4':
+            case 'h5':
+            case 'h6':
+              options.text3D = true;
+          }
+
           text.make(this._ht3d.text, {
             'font-family': this.getStyle('font-family'),
             'font-size': this.getStyle('font-size'),
             'font-height': this.getStyle('font-height'),
             'font-weight': this.getStyle('font-weight'),
             'color': this.getStyle('color')
-          }).then(function (newText) {
+          }, options).then(function (newText) {
             _this3.add(newText, { rearrange: true });
           });
         }
@@ -52214,9 +52273,17 @@ var fontCache = require('./font-cache.js');
 
 var CURVE_SEGMENTS = 12;
 
+function getColorString(num) {
+  var filling = '000000';
+  var hexString = num.toString(16);
+  hexString = filling + hexString;
+  hexString = '#' + hexString.slice(-6);
+  return hexString;
+}
+
 module.exports = function (fonts) {
 
-  function makeText(text, style) {
+  function makeText3D(text, style) {
     //    var wordStringArray = text.split(' ');
     var fontPromise = fonts[style['font-family'] + '-' + style['font-weight']].dataPromise;
 
@@ -52238,8 +52305,50 @@ module.exports = function (fonts) {
     });
   }
 
+  // Adapted from https://jsfiddle.net/h9sub275/4/
+  function makeTextSprite(text, style) {
+    return new Promise(function (resolve) {
+      var fontSize = style['font-size'] * 30;
+
+      var ctx,
+          texture,
+          sprite,
+          spriteMaterial,
+          canvas = document.createElement('canvas');
+
+      ctx = canvas.getContext('2d');
+      ctx.font = fontSize + 'px ' + style['font-family'];
+
+      // setting canvas width/height before ctx draw, else canvas is empty
+      canvas.width = ctx.measureText(text).width;
+      canvas.height = fontSize * 2; // fontsize * 1.5
+      var canvasRatio = canvas.width / canvas.height;
+
+      // after setting the canvas width/height we have to re-set font to apply!?
+      // looks like ctx reset
+      ctx.font = fontSize + 'px ' + style['font-family'];
+      ctx.fillStyle = getColorString(style['color']);
+
+      ctx.fillText(text, 0, fontSize, canvas.width);
+
+      document.body.appendChild(canvas);
+
+      texture = new THREE.Texture(canvas);
+      //      texture.minFilter = THREE.LinearFilter; // NearestFilter;
+      texture.needsUpdate = true;
+
+      spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+      sprite = new THREE.Sprite(spriteMaterial);
+      sprite.scale.set(3 * canvasRatio, 3, 1);
+
+      resolve(sprite);
+    });
+  }
+
   return {
-    make: makeText
+    make: function make(text, style, options) {
+      return options && options.text3D ? makeText3D(text, style) : makeTextSprite(text, style);
+    }
   };
 };
 
