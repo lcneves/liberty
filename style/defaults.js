@@ -34,8 +34,8 @@ module.exports = {
   'tags': {
     'body': {
       'font-family': 'sans-serif',
-      'font-size': 1,
-      'font-height': 0,
+      'font-size': 16,
+      'font-height': 1,
       'font-weight': 'regular',
       'color': 0x000000
     },
@@ -63,39 +63,45 @@ module.exports = {
 
     'h1': {
       'display': 'block',
-      'font-size': 6,
-      'font-height': 1.5
+      'font-weight': 'bold',
+      'font-size': 32,
+      'font-height': 8
     },
 
     'h2': {
       'display': 'block',
-      'font-size': 5,
-      'font-height': 1.25
+      'font-weight': 'bold',
+      'font-size': 24,
+      'font-height': 6
     },
 
     'h3': {
       'display': 'block',
-      'font-size': 4,
-      'font-height': 1
+      'font-weight': 'bold',
+      'font-size': 18.7,
+      'font-height': 4.67
     },
 
     'h4': {
       'display': 'block',
-      'font-size': 3,
-      'font-height': 0.75
+      'font-weight': 'bold',
+      'font-size': 16,
+      'font-height': 4
     },
 
     'h5': {
       'display': 'block',
-      'font-size': 2,
-      'font-height': 0.5
+      'font-weight': 'bold',
+      'font-size': 13.3,
+      'font-height': 3.33
 
     },
 
     'h6': {
       'display': 'block',
-      'font-size': 1.5,
-      'font-height': 0.375
+      'font-weight': 'bold',
+      'font-size': 10.7,
+      'font-height': 2.67
     }
   }
 };

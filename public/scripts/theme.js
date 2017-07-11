@@ -125,7 +125,7 @@ module.exports['shell'] = function template(locals) {
       ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'The project is in active and intense development. Check out the documentation on docs.livre.media</p></div>';
+      pug_html = pug_html + 'The project is under active and intense development. Check out the documentation at docs.livre.media</p></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
@@ -7256,8 +7256,8 @@ module.exports = {
   'tags': {
     'body': {
       'font-family': 'sans-serif',
-      'font-size': 1,
-      'font-height': 0,
+      'font-size': 16,
+      'font-height': 1,
       'font-weight': 'regular',
       'color': 0x000000
     },
@@ -7285,39 +7285,45 @@ module.exports = {
 
     'h1': {
       'display': 'block',
-      'font-size': 6,
-      'font-height': 1.5
+      'font-weight': 'bold',
+      'font-size': 32,
+      'font-height': 8
     },
 
     'h2': {
       'display': 'block',
-      'font-size': 5,
-      'font-height': 1.25
+      'font-weight': 'bold',
+      'font-size': 24,
+      'font-height': 6
     },
 
     'h3': {
       'display': 'block',
-      'font-size': 4,
-      'font-height': 1
+      'font-weight': 'bold',
+      'font-size': 18.7,
+      'font-height': 4.67
     },
 
     'h4': {
       'display': 'block',
-      'font-size': 3,
-      'font-height': 0.75
+      'font-weight': 'bold',
+      'font-size': 16,
+      'font-height': 4
     },
 
     'h5': {
       'display': 'block',
-      'font-size': 2,
-      'font-height': 0.5
+      'font-weight': 'bold',
+      'font-size': 13.3,
+      'font-height': 3.33
 
     },
 
     'h6': {
       'display': 'block',
-      'font-size': 1.5,
-      'font-height': 0.375
+      'font-weight': 'bold',
+      'font-size': 10.7,
+      'font-height': 2.67
     }
   }
 };
@@ -7486,6 +7492,7 @@ module.exports = function (options) {
   var Object3D = require('./object3d.js')(theme);
   var Body = require('./body.js')(Object3D);
   var Camera = require('./camera.js');
+  var windowUtils = require('./window-utils.js');
 
   var far = theme.worldWidth / (2 * Math.tan(theme.hfov / 2 * Math.PI / 180));
   var dimensions = {
@@ -7493,6 +7500,8 @@ module.exports = function (options) {
     far: far,
     near: far * theme.nearFarRatio
   };
+
+  windowUtils.init(theme.worldWidth, window.innerHeight);
 
   var scene, lights;
 
@@ -7509,12 +7518,13 @@ module.exports = function (options) {
   // Resize canvas on window resize
   window.addEventListener('resize', function () {
     var aspectRatio = window.innerWidth / window.innerHeight;
-
+    windowUtils.windowWidth = window.innerWidth;
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     if (camera) {
       camera.aspectRatio = aspectRatio;
     }
+
     if (body) {
       body.aspectRatio = aspectRatio;
     }
@@ -7608,7 +7618,7 @@ module.exports = function (options) {
   };
 };
 
-},{"./body.js":306,"./camera.js":307,"./object3d.js":314,"./utils/click.js":317,"three":313}],309:[function(require,module,exports){
+},{"./body.js":306,"./camera.js":307,"./object3d.js":314,"./utils/click.js":317,"./window-utils.js":318,"three":313}],309:[function(require,module,exports){
 /*
  * font-cache.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -51559,6 +51569,7 @@ module.exports = function (theme, options) {
   var style = require('./style.js')(options);
   theme.resources = style.loadResources(theme.stylesheets);
   var text = require('./text.js')(theme.resources.fonts);
+  var windowUtils = require('./window-utils.js');
 
   var Background = function (_THREE$PlaneGeometry) {
     _inherits(Background, _THREE$PlaneGeometry);
@@ -51616,16 +51627,16 @@ module.exports = function (theme, options) {
   }
 
   function makeBboxFromImage(image) {
-    var pixelToWorldRatio = 40; //TODO: Find out a logic for this
+    var worldToPixels = windowUtils.worldToPixels;
     return {
       min: {
-        x: -image.width / (2 * pixelToWorldRatio),
-        y: -image.height / (2 * pixelToWorldRatio),
+        x: -image.width / (2 * worldToPixels),
+        y: -image.height / (2 * worldToPixels),
         z: 0
       },
       max: {
-        x: image.width / (2 * pixelToWorldRatio),
-        y: image.height / (2 * pixelToWorldRatio),
+        x: image.width / (2 * worldToPixels),
+        y: image.height / (2 * worldToPixels),
         z: 0
       }
     };
@@ -51973,7 +51984,7 @@ module.exports = function (theme, options) {
   return Object3D;
 };
 
-},{"./ht3d.js":310,"./style.js":315,"./text.js":316,"three":313}],315:[function(require,module,exports){
+},{"./ht3d.js":310,"./style.js":315,"./text.js":316,"./window-utils.js":318,"three":313}],315:[function(require,module,exports){
 /*
  * style.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -52270,8 +52281,10 @@ module.exports = function (options) {
 
 var THREE = require('three');
 var fontCache = require('./font-cache.js');
+var windowUtils = require('./window-utils.js');
 
 var CURVE_SEGMENTS = 12;
+var WORLD_TO_FONT_SIZE = 16;
 
 function getColorString(num) {
   var filling = '000000';
@@ -52292,8 +52305,8 @@ module.exports = function (fonts) {
         //        var geometry = fontCache.makeWordGeometry(text, {
         var geometry = new THREE.TextGeometry(text, {
           font: font,
-          size: style['font-size'],
-          height: style['font-height'],
+          size: style['font-size'] / WORLD_TO_FONT_SIZE,
+          height: style['font-height'] / WORLD_TO_FONT_SIZE,
           curveSegments: CURVE_SEGMENTS,
           bevelEnabled: false
         });
@@ -52308,7 +52321,7 @@ module.exports = function (fonts) {
   // Adapted from https://jsfiddle.net/h9sub275/4/
   function makeTextSprite(text, style) {
     return new Promise(function (resolve) {
-      var fontSize = style['font-size'] * 30;
+      var fontSize = style['font-size'];
 
       var ctx,
           texture,
@@ -52323,6 +52336,7 @@ module.exports = function (fonts) {
       canvas.width = ctx.measureText(text).width;
       canvas.height = fontSize * 2; // fontsize * 1.5
       var canvasRatio = canvas.width / canvas.height;
+      var fontScaleFactor = windowUtils.getFontScaleFactor(canvas.width);
 
       // after setting the canvas width/height we have to re-set font to apply!?
       // looks like ctx reset
@@ -52331,15 +52345,13 @@ module.exports = function (fonts) {
 
       ctx.fillText(text, 0, fontSize, canvas.width);
 
-      document.body.appendChild(canvas);
-
       texture = new THREE.Texture(canvas);
-      //      texture.minFilter = THREE.LinearFilter; // NearestFilter;
+      texture.minFilter = THREE.LinearFilter; // NearestFilter;
       texture.needsUpdate = true;
 
       spriteMaterial = new THREE.SpriteMaterial({ map: texture });
       sprite = new THREE.Sprite(spriteMaterial);
-      sprite.scale.set(3 * canvasRatio, 3, 1);
+      sprite.scale.set(fontScaleFactor, fontScaleFactor / canvasRatio, 1);
 
       resolve(sprite);
     });
@@ -52352,7 +52364,7 @@ module.exports = function (fonts) {
   };
 };
 
-},{"./font-cache.js":309,"three":313}],317:[function(require,module,exports){
+},{"./font-cache.js":309,"./window-utils.js":318,"three":313}],317:[function(require,module,exports){
 /*
  * click.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -52388,6 +52400,50 @@ module.exports = function (THREE, renderer, camera, body) {
     if (intersects.length > 0 && typeof intersects[0].object.onClick === 'function') {
       intersects[0].object.onClick();
     }
+  }
+};
+
+},{}],318:[function(require,module,exports){
+/*
+ * window-utils.js
+ * Copyright 2017 Lucas Neves <lcneves@gmail.com>
+ *
+ * Utility functions for the window 3D geometry.
+ * Part of the Livre project.
+ */
+
+'use strict';
+
+var _worldWidth = undefined;
+var _windowWidth = undefined;
+
+module.exports = {
+  init: function init(worldWidth, windowWidth) {
+    _windowWidth = windowWidth;
+    _worldWidth = worldWidth;
+  },
+  get windowWidth() {
+    return _windowWidth;
+  },
+
+  set windowWidth(value) {
+    _windowWidth = value;
+  },
+
+  // Returns the number of pixels that is equivalent of one world unit
+  // at z === 0 (far)
+  get worldToPixels() {
+    if (_windowWidth !== undefined && _worldWidth !== undefined) {
+      return _windowWidth / _worldWidth;
+    } else {
+      throw new Error('Screen geometry has not been defined!');
+    }
+  },
+
+  // A text sprite multiplied by this value result in the proper size
+  // when text is placed at z === 0 (far)
+  getFontScaleFactor: function getFontScaleFactor(canvasWidth) {
+    return canvasWidth / this.worldToPixels;
   }
 };
 
