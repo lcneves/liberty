@@ -7501,7 +7501,7 @@ module.exports = function (options) {
     near: far * theme.nearFarRatio
   };
 
-  windowUtils.init(theme.worldWidth, window.innerHeight);
+  windowUtils.init(theme.worldWidth, window.innerWidth);
 
   var scene, lights;
 
@@ -52329,6 +52329,8 @@ module.exports = function (fonts) {
           spriteMaterial,
           canvas = document.createElement('canvas');
 
+      document.body.appendChild(canvas);
+
       ctx = canvas.getContext('2d');
       ctx.font = fontSize + 'px ' + style['font-family'];
 
@@ -52342,12 +52344,30 @@ module.exports = function (fonts) {
       // looks like ctx reset
       ctx.font = fontSize + 'px ' + style['font-family'];
       ctx.fillStyle = getColorString(style['color']);
-
       ctx.fillText(text, 0, fontSize, canvas.width);
 
-      texture = new THREE.Texture(canvas);
+      /*
+       * Mesh-based solution. Creates a transparent mesh.
+       *
+      // Canvas will be black with white text. It will be used as an
+      // alpha map.
+      ctx.fillStyle = 'black';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+       ctx.fillStyle = 'white';
+       var material = new THREE.MeshBasicMaterial({
+        color: style['color'],
+        alphaMap: texture,
+        transparent: true
+      });
+       var geometry = new THREE.PlaneGeometry(
+        fontScaleFactor, fontScaleFactor / canvasRatio
+      );
+       var mesh = new THREE.Mesh(geometry, material);
+       resolve(mesh);
+       */
+
+      texture = new THREE.CanvasTexture(canvas);
       texture.minFilter = THREE.LinearFilter; // NearestFilter;
-      texture.needsUpdate = true;
 
       spriteMaterial = new THREE.SpriteMaterial({ map: texture });
       sprite = new THREE.Sprite(spriteMaterial);
