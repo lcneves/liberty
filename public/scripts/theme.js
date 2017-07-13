@@ -51865,6 +51865,10 @@ module.exports = function (theme, options) {
     sprite.scale.set(scaleFactor, scaleFactor / aspect, 1);
   }
 
+  function isText3D(object) {
+    return object.geometry && object.geometry.type === 'TextGeometry';
+  }
+
   function positionChildren(parentObject) {
     var offset = makeInitialPosition();
     offset.x.distance += getSpacer(parentObject, 'left');
@@ -51879,6 +51883,11 @@ module.exports = function (theme, options) {
         child = new Background(parentObject);
         position = makeWorldPosition(child, parentObject, makeInitialPosition());
       } else {
+
+        if (isText3D(child)) {
+          child._resize(windowUtils.worldToPixels);
+        }
+
         position = makeWorldPosition(child, parentObject, offset);
         var directionAxis = getDirectionAxis(parentObject._style['direction']);
         offset[directionAxis].distance += getDimensions(child, { includeMargin: true })[directionAxis];
@@ -52345,7 +52354,6 @@ var fontCache = require('./font-cache.js');
 var windowUtils = require('./window-utils.js');
 
 var CURVE_SEGMENTS = 12;
-var WORLD_TO_FONT_SIZE = 16;
 
 function getColorString(num) {
   var filling = '000000';
@@ -52354,6 +52362,11 @@ function getColorString(num) {
   hexString = '#' + hexString.slice(-6);
   return hexString;
 }
+
+function resizeMesh(newWorldToPixelsRatio) {
+  var scaleFactor = this._worldToPixelsRatio / newWorldToPixelsRatio;
+  this.scale.set(scaleFactor, scaleFactor, scaleFactor);
+};
 
 module.exports = function (fonts) {
 
@@ -52364,16 +52377,21 @@ module.exports = function (fonts) {
     return new Promise(function (resolve) {
       fontPromise.then(function (font) {
         //        var geometry = fontCache.makeWordGeometry(text, {
+        var worldToPixels = windowUtils.worldToPixels;
+
         var geometry = new THREE.TextGeometry(text, {
           font: font,
-          size: style['font-size'] / WORLD_TO_FONT_SIZE,
-          height: style['font-height'] / WORLD_TO_FONT_SIZE,
+          size: style['font-size'] / worldToPixels,
+          height: style['font-height'] / worldToPixels,
           curveSegments: CURVE_SEGMENTS,
           bevelEnabled: false
         });
         var material = new THREE.MeshPhongMaterial({ color: style['color'] });
         var mesh = new THREE.Mesh(geometry, material);
 
+        // Needed to scale when screen width changes
+        mesh._worldToPixelsRatio = worldToPixels;
+        mesh._resize = resizeMesh;
         resolve(mesh);
       });
     });
