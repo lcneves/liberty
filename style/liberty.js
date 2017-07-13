@@ -16,7 +16,8 @@ module.exports = {
     },
     'footer': {
       'color': 0x888888,
-      'background-color': 0xaaaaaa
+      'background-color': 0xdddddd,
+      'padding': 1.5
     }
   }
 };
