@@ -3,10 +3,10 @@
 module.exports = {
   'tags': {
     'body': {
-      'padding': '1 2'
+      'padding': '1rem 2rem'
     },
     'p': {
-      'margin': '1 0'
+      'margin': '1rem 0'
     }
   },
   'ids': {
@@ -17,7 +17,7 @@ module.exports = {
     'footer': {
       'color': 0x888888,
       'background-color': 0xdddddd,
-      'padding': 1.5
+      'padding': '1.5rem'
     }
   }
 };
