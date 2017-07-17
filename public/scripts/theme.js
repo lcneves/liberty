@@ -7413,7 +7413,6 @@ module.exports = function (Object3D) {
       key: 'aspectRatio',
       set: function set(value) {
         this._aspect = value;
-        this.arrangeChildren();
       }
     }]);
 
@@ -7539,6 +7538,7 @@ module.exports = function (options) {
 
     if (body) {
       body.aspectRatio = aspectRatio;
+      messages.setMessage('needsArrange', body);
     }
   });
 
@@ -51875,14 +51875,32 @@ module.exports = function (theme, options) {
     return object.geometry && object.geometry.type === 'TextGeometry';
   }
 
-  function resizeChildren(parentObject) {
+  function updateBackground(object) {
+    for (var index = 0; index < object.children.length; index++) {
+      var child = object.children[index];
+
+      if (child._isBackground) {
+        child = new Background(object);
+        child.parent = object;
+        object.children.splice(index, 1, child);
+        break;
+      }
+    }
+  }
+
+  function _resizeChildren(object) {
     var _iteratorNormalCompletion2 = true;
     var _didIteratorError2 = false;
     var _iteratorError2 = undefined;
 
     try {
-      for (var _iterator2 = parentObject.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+      for (var _iterator2 = object.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
         var child = _step2.value;
+
+
+        if (child._isLivreObject) {
+          child.resizeChildren();
+        }
 
         if (isText3D(child)) {
           child._resize(windowUtils.worldToPixels);
@@ -51905,18 +51923,41 @@ module.exports = function (theme, options) {
       }
     }
 
+    updateBackground(object);
+  }
+
+  function _positionChildren(object) {
+    var offset = makeInitialPosition();
+    offset.x.distance += getSpacer(object, 'left');
+    offset.y.distance += getSpacer(object, 'top');
+    offset.z.distance += getSpacer(object, 'far');
+
     var _iteratorNormalCompletion3 = true;
     var _didIteratorError3 = false;
     var _iteratorError3 = undefined;
 
     try {
-      for (var _iterator3 = parentObject.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-        var _child = _step3.value;
+      for (var _iterator3 = object.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+        var child = _step3.value;
 
-        if (_child._isBackground) {
-          parentObject.remove(_child);
-          parentObject.add(new Background(parentObject));
-          break;
+        var position = void 0;
+
+        if (child._isBackground) {
+          position = makeWorldPosition(child, object, makeInitialPosition());
+        } else {
+          position = makeWorldPosition(child, object, offset);
+          var directionAxis = getDirectionAxis(object.getStyle('direction'));
+          offset[directionAxis].distance += getDimensions(child, { includeMargin: true })[directionAxis];
+        }
+
+        var _arr3 = ['x', 'y', 'z'];
+        for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
+          var axis = _arr3[_i3];
+          child.position[axis] = position[axis];
+        }
+
+        if (child._isLivreObject) {
+          child.positionChildren();
         }
       }
     } catch (err) {
@@ -51931,34 +51972,6 @@ module.exports = function (theme, options) {
         if (_didIteratorError3) {
           throw _iteratorError3;
         }
-      }
-    }
-  }
-
-  function positionChildren(parentObject) {
-    var offset = makeInitialPosition();
-    offset.x.distance += getSpacer(parentObject, 'left');
-    offset.y.distance += getSpacer(parentObject, 'top');
-    offset.z.distance += getSpacer(parentObject, 'far');
-
-    for (var i = 0; i < parentObject.children.length; i++) {
-      var child = parentObject.children[i];
-      var position = void 0;
-
-      if (child._isBackground) {
-        position = makeWorldPosition(child, parentObject, makeInitialPosition());
-      } else {
-        position = makeWorldPosition(child, parentObject, offset);
-        var directionAxis = getDirectionAxis(parentObject.getStyle('direction'));
-        offset[directionAxis].distance += getDimensions(child, { includeMargin: true })[directionAxis];
-      }
-      var _arr3 = ['x', 'y', 'z'];
-      for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
-        var axis = _arr3[_i3];
-        child.position[axis] = position[axis];
-      }
-      if (child._isLivreObject) {
-        child.arrangeChildren();
       }
     }
   }
@@ -52022,10 +52035,20 @@ module.exports = function (theme, options) {
         }
       }
     }, {
+      key: 'resizeChildren',
+      value: function resizeChildren() {
+        _resizeChildren(this);
+      }
+    }, {
+      key: 'positionChildren',
+      value: function positionChildren() {
+        _positionChildren(this);
+      }
+    }, {
       key: 'arrangeChildren',
       value: function arrangeChildren() {
-        resizeChildren(this);
-        positionChildren(this);
+        this.resizeChildren();
+        this.positionChildren();
       }
     }, {
       key: 'setWorldPosition',
