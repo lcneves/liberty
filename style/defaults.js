@@ -58,42 +58,48 @@ module.exports = {
     },
 
     'p': {
-      'display': 'block'
+      'display': 'block',
+      'margin': '0 1em 0'
     },
 
     'h1': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 32,
-      'font-height': 8
+      'font-height': 8,
+      'margin': '0 1em 0'
     },
 
     'h2': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 24,
-      'font-height': 6
+      'font-height': 6,
+      'margin': '0 1em 0'
     },
 
     'h3': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 18.7,
-      'font-height': 4.67
+      'font-height': 4.67,
+      'margin': '0 1em 0'
     },
 
     'h4': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 16,
-      'font-height': 4
+      'font-height': 4,
+      'margin': '0 1em 0'
     },
 
     'h5': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 13.3,
-      'font-height': 3.33
+      'font-height': 3.33,
+      'margin': '0 1em 0'
 
     },
 
@@ -101,7 +107,8 @@ module.exports = {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 10.7,
-      'font-height': 2.67
+      'font-height': 2.67,
+      'margin': '0 1em 0'
     }
   }
 };

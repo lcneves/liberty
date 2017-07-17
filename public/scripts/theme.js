@@ -117,14 +117,10 @@ module.exports['shell'] = function template(locals) {
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Li</p>';
-      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p>';
-      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + 'Livre will be a network of free ideas!</p>';
-      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p>';
-      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + 'The project is under active and intense development. Check out the documentation at docs.livre.media</p></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
@@ -7286,42 +7282,48 @@ module.exports = {
     },
 
     'p': {
-      'display': 'block'
+      'display': 'block',
+      'margin': '0 1em 0'
     },
 
     'h1': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 32,
-      'font-height': 8
+      'font-height': 8,
+      'margin': '0 1em 0'
     },
 
     'h2': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 24,
-      'font-height': 6
+      'font-height': 6,
+      'margin': '0 1em 0'
     },
 
     'h3': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 18.7,
-      'font-height': 4.67
+      'font-height': 4.67,
+      'margin': '0 1em 0'
     },
 
     'h4': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 16,
-      'font-height': 4
+      'font-height': 4,
+      'margin': '0 1em 0'
     },
 
     'h5': {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 13.3,
-      'font-height': 3.33
+      'font-height': 3.33,
+      'margin': '0 1em 0'
 
     },
 
@@ -7329,7 +7331,8 @@ module.exports = {
       'display': 'block',
       'font-weight': 'bold',
       'font-size': 10.7,
-      'font-height': 2.67
+      'font-height': 2.67,
+      'margin': '0 1em 0'
     }
   }
 };
@@ -7340,11 +7343,9 @@ module.exports = {
 module.exports = {
   'tags': {
     'body': {
-      'padding': '1 2'
+      'padding': '1rem 2rem'
     },
-    'p': {
-      'margin': '1 0'
-    }
+    'p': {}
   },
   'ids': {
     'logo': {
@@ -7354,7 +7355,7 @@ module.exports = {
     'footer': {
       'color': 0x888888,
       'background-color': 0xdddddd,
-      'padding': 1.5
+      'padding': '1.5rem'
     }
   }
 };
@@ -7511,7 +7512,7 @@ module.exports = function (options) {
     near: far * theme.nearFarRatio
   };
 
-  windowUtils.init(theme.worldWidth, window.innerWidth);
+  windowUtils.init(theme.worldWidth, window.innerWidth, window.innerHeight);
 
   var scene, lights;
 
@@ -7529,6 +7530,7 @@ module.exports = function (options) {
   window.addEventListener('resize', function () {
     var aspectRatio = window.innerWidth / window.innerHeight;
     windowUtils.windowWidth = window.innerWidth;
+    windowUtils.windowHeight = window.innerHeight;
     renderer.setSize(window.innerWidth, window.innerHeight);
 
     if (camera) {
@@ -7637,7 +7639,7 @@ module.exports = function (options) {
   };
 };
 
-},{"./body.js":306,"./camera.js":307,"./messages.js":312,"./object3d.js":315,"./utils/click.js":318,"./window-utils.js":319,"three":314}],309:[function(require,module,exports){
+},{"./body.js":306,"./camera.js":307,"./messages.js":312,"./object3d.js":315,"./utils/click.js":319,"./window-utils.js":320,"three":314}],309:[function(require,module,exports){
 /*
  * font-cache.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -51618,6 +51620,7 @@ module.exports = function (theme, options) {
   theme.resources = style.loadResources(theme.stylesheets);
   var text = require('./text.js')(theme.resources.fonts);
   var windowUtils = require('./window-utils.js');
+  var units = require('./units.js');
   var messages = require('./messages.js');
 
   var Background = function (_THREE$Mesh) {
@@ -51627,14 +51630,9 @@ module.exports = function (theme, options) {
       _classCallCheck(this, Background);
 
       if (object && object._isLivreObject) {
-        var _style = object._style;
-        if (!_style) {
-          throw new Error('Object does not have a style property!');
-        }
-        var bgColor = _style['background-color'];
         var dimensions = object.dimensions;
         var material = new THREE.MeshPhongMaterial({
-          color: _style['background-color']
+          color: object.getStyle('background-color')
         });
         var geometry = new THREE.PlaneGeometry(dimensions.x, dimensions.y);
 
@@ -51693,14 +51691,22 @@ module.exports = function (theme, options) {
 
   function isSpriteFromCanvas(object) {
     return object.material && object.material.map && object.material.map.image && object.material.map.image.width && object.material.map.image.height;
-  };
+  }
 
   function getBboxFromObject(object) {
     if (object.geometry) {
       if (object.geometry.boundingBox === null) {
         object.geometry.computeBoundingBox();
       }
-      return object.geometry.boundingBox;
+      var bBox = JSON.parse(JSON.stringify(object.geometry.boundingBox));
+
+      // Adjust bounding box to current scale
+      for (var parameter in bBox) {
+        for (var axis in bBox[parameter]) {
+          bBox[parameter][axis] *= object.scale[axis];
+        }
+      }
+      return bBox;
     } else if (isSpriteFromCanvas(object)) {
       return makeBboxFromImage(object.material.map.image);
     }
@@ -51760,15 +51766,14 @@ module.exports = function (theme, options) {
         }
       }
 
-      var style = object._style;
-      virtualBox.x += style['padding-left'] + style['padding-right'];
-      virtualBox.y += style['padding-top'] + style['padding-bottom'];
-      virtualBox.z += style['padding-far'] + style['padding-near'];
+      virtualBox.x += units.convert(object, 'padding-left', 'world') + units.convert(object, 'padding-right', 'world');
+      virtualBox.y += units.convert(object, 'padding-top', 'world') + units.convert(object, 'padding-bottom', 'world');
+      virtualBox.z += units.convert(object, 'padding-far', 'world') + units.convert(object, 'padding-near', 'world');
 
       if (options && options.includeMargin) {
-        virtualBox.x += style['margin-left'] + style['margin-right'];
-        virtualBox.y += style['margin-top'] + style['margin-bottom'];
-        virtualBox.z += style['margin-far'] + style['margin-near'];
+        virtualBox.x += units.convert(object, 'margin-left', 'world') + units.convert(object, 'margin-right', 'world');
+        virtualBox.y += units.convert(object, 'margin-top', 'world') + units.convert(object, 'margin-bottom', 'world');
+        virtualBox.z += units.convert(object, 'margin-far', 'world') + units.convert(object, 'margin-near', 'world');
       }
 
       return virtualBox;
@@ -51780,7 +51785,7 @@ module.exports = function (theme, options) {
 
   function getSpacer(object, direction) {
     if (object._isLivreObject) {
-      return object._style['margin-' + direction] + object._style['padding-' + direction];
+      return units.convert(object, 'margin-' + direction, 'world') + units.convert(object, 'padding-' + direction, 'world');
     } else {
       return 0;
     }
@@ -51944,7 +51949,7 @@ module.exports = function (theme, options) {
         position = makeWorldPosition(child, parentObject, makeInitialPosition());
       } else {
         position = makeWorldPosition(child, parentObject, offset);
-        var directionAxis = getDirectionAxis(parentObject._style['direction']);
+        var directionAxis = getDirectionAxis(parentObject.getStyle('direction'));
         offset[directionAxis].distance += getDimensions(child, { includeMargin: true })[directionAxis];
       }
       var _arr3 = ['x', 'y', 'z'];
@@ -51955,6 +51960,15 @@ module.exports = function (theme, options) {
       if (child._isLivreObject) {
         child.arrangeChildren();
       }
+    }
+  }
+
+  function getFontSize(object) {
+    var parsed = units.parse(object.getStyle('font-size'));
+    if (parsed.unit === 'em') {
+      return object._parent.fontSize * parsed.quantum;
+    } else {
+      return units.convert(object, 'font-size');
     }
   }
 
@@ -51999,15 +52013,13 @@ module.exports = function (theme, options) {
     _createClass(Object3D, [{
       key: 'getStyle',
       value: function getStyle(property) {
-        var currentObject = this;
-        do {
-          if (currentObject._style[property] !== undefined) {
-            return currentObject._style[property];
-          }
-          currentObject = currentObject.parent || currentObject._parent;
-        } while (currentObject.parent || currentObject._parent);
-
-        return undefined;
+        if (this._style[property] !== undefined) {
+          return this._style[property];
+        } else if (this._parent) {
+          return this._parent.getStyle(property);
+        } else {
+          return undefined;
+        }
       }
     }, {
       key: 'arrangeChildren',
@@ -52026,6 +52038,15 @@ module.exports = function (theme, options) {
           if (position.hasOwnProperty(prop)) {
             this.position[prop] = position[prop];
           }
+        }
+      }
+    }, {
+      key: 'getProperty',
+      value: function getProperty(property) {
+        if (this._ht3d) {
+          return this._ht3d[property];
+        } else {
+          return undefined;
         }
       }
     }, {
@@ -52052,29 +52073,9 @@ module.exports = function (theme, options) {
       value: function makeText() {
         var _this3 = this;
 
-        if (this._ht3d && this._ht3d.text) {
-
-          // Headers get rendered in real 3D characters;
-          // other tags get rendered as sprites based on 2D HTML5 canvases
-          var options = {};
-          switch (this._ht3d.tag) {
-            case 'h1':
-            case 'h2':
-            case 'h3':
-            case 'h4':
-            case 'h5':
-            case 'h6':
-              options.text3D = true;
-          }
-
-          text.make(this._ht3d.text, {
-            'font-family': this.getStyle('font-family'),
-            'font-size': this.getStyle('font-size'),
-            'font-height': this.getStyle('font-height'),
-            'font-weight': this.getStyle('font-weight'),
-            'color': this.getStyle('color')
-          }, options).then(function (newText) {
-            _this3.add(newText, { rearrange: true });
+        if (this.getProperty('text') !== undefined) {
+          text.make(this).then(function (newText) {
+            return _this3.add(newText, { rearrange: true });
           });
         }
       }
@@ -52085,6 +52086,8 @@ module.exports = function (theme, options) {
       key: 'add',
       value: function add(object, options) {
         THREE.Object3D.prototype.add.call(this, object);
+
+        object._parent = this;
 
         if (options && options.rearrange) {
           var topObject = this;
@@ -52104,6 +52107,11 @@ module.exports = function (theme, options) {
       get: function get() {
         return getBoundaries(this);
       }
+    }, {
+      key: 'fontSize',
+      get: function get() {
+        return getFontSize(this);
+      }
     }]);
 
     return Object3D;
@@ -52112,7 +52120,7 @@ module.exports = function (theme, options) {
   return Object3D;
 };
 
-},{"./ht3d.js":310,"./messages.js":312,"./style.js":316,"./text.js":317,"./window-utils.js":319,"three":314}],316:[function(require,module,exports){
+},{"./ht3d.js":310,"./messages.js":312,"./style.js":316,"./text.js":317,"./units.js":318,"./window-utils.js":320,"three":314}],316:[function(require,module,exports){
 /*
  * style.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -52224,9 +52232,6 @@ module.exports = function (options) {
 
     if (typeof value === 'string') {
       var values = value.split(' ');
-      for (var i = 0; i < values.length; i++) {
-        values[i] = Number(values[i]);
-      }
 
       switch (values.length) {
         case 1:
@@ -52252,11 +52257,11 @@ module.exports = function (options) {
         case 4:
         case 5:
         case 6:
-          for (var _i = 0; _i < values.length; _i++) {
-            results[property + '-' + directions[_i]] = values[_i];
+          for (var i = 0; i < values.length; i++) {
+            results[property + '-' + directions[i]] = values[i];
           }
-          for (var _i2 = directions.length - 1; _i2 >= values.length; _i2--) {
-            results[property + '-' + directions[_i2]] = 0;
+          for (var _i = directions.length - 1; _i >= values.length; _i--) {
+            results[property + '-' + directions[_i]] = 0;
           }
           if (values.length === 5) {
             results[property + '-' + 'near'] = results[property + '-' + 'far'];
@@ -52410,6 +52415,7 @@ module.exports = function (options) {
 var THREE = require('three');
 var fontCache = require('./font-cache.js');
 var windowUtils = require('./window-utils.js');
+var units = require('./units.js');
 
 var CURVE_SEGMENTS = 12;
 
@@ -52424,31 +52430,32 @@ function getColorString(num) {
 function resizeMesh(newWorldToPixelsRatio) {
   var scaleFactor = this._worldToPixelsRatio / newWorldToPixelsRatio;
   this.scale.set(scaleFactor, scaleFactor, scaleFactor);
-};
+}
 
 module.exports = function (fonts) {
 
-  function makeText3D(text, style) {
+  function makeText3D(object) {
+    var text = object._ht3d.text;
+
     //    var wordStringArray = text.split(' ');
-    var fontPromise = fonts[style['font-family'] + '-' + style['font-weight']].dataPromise;
+    var fontPromise = fonts[object.getStyle('font-family') + '-' + object.getStyle('font-weight')].dataPromise;
 
     return new Promise(function (resolve) {
       fontPromise.then(function (font) {
         //        var geometry = fontCache.makeWordGeometry(text, {
-        var worldToPixels = windowUtils.worldToPixels;
 
         var geometry = new THREE.TextGeometry(text, {
           font: font,
-          size: style['font-size'] / worldToPixels,
-          height: style['font-height'] / worldToPixels,
+          size: units.convert(object, 'font-size', 'world'),
+          height: units.convert(object, 'font-height', 'world'),
           curveSegments: CURVE_SEGMENTS,
           bevelEnabled: false
         });
-        var material = new THREE.MeshPhongMaterial({ color: style['color'] });
+        var material = new THREE.MeshPhongMaterial({ color: object.getStyle('color') });
         var mesh = new THREE.Mesh(geometry, material);
 
         // Needed to scale when screen width changes
-        mesh._worldToPixelsRatio = worldToPixels;
+        mesh._worldToPixelsRatio = windowUtils.worldToPixels;
         mesh._resize = resizeMesh;
         resolve(mesh);
       });
@@ -52456,9 +52463,11 @@ module.exports = function (fonts) {
   }
 
   // Adapted from https://jsfiddle.net/h9sub275/4/
-  function makeTextSprite(text, style) {
+  function makeTextSprite(object) {
+    var text = object._ht3d.text;
+
     return new Promise(function (resolve) {
-      var fontSize = style['font-size'];
+      var fontSize = units.convert(object, 'font-size');
 
       var ctx,
           texture,
@@ -52466,19 +52475,17 @@ module.exports = function (fonts) {
           spriteMaterial,
           canvas = document.createElement('canvas');
 
-      document.body.appendChild(canvas);
-
       ctx = canvas.getContext('2d');
-      ctx.font = fontSize + 'px ' + style['font-family'];
+      ctx.font = fontSize + 'px ' + object.getStyle('font-family');
 
       // setting canvas width/height before ctx draw, else canvas is empty
       canvas.width = ctx.measureText(text).width;
-      canvas.height = fontSize * 2; // fontsize * 1.5
+      canvas.height = fontSize * 1.2; // fontsize * 1.5
 
       // after setting the canvas width/height we have to re-set font to apply!?
       // looks like ctx reset
-      ctx.font = fontSize + 'px ' + style['font-family'];
-      ctx.fillStyle = getColorString(style['color']);
+      ctx.font = fontSize + 'px ' + object.getStyle('font-family');
+      ctx.fillStyle = getColorString(object.getStyle('color'));
       ctx.fillText(text, 0, fontSize, canvas.width);
 
       /*
@@ -52511,14 +52518,165 @@ module.exports = function (fonts) {
     });
   }
 
-  return {
-    make: function make(text, style, options) {
-      return options && options.text3D ? makeText3D(text, style) : makeTextSprite(text, style);
+  function make(object) {
+    if (!object || !object._ht3d || !object._ht3d.text || typeof object._ht3d.text !== 'string') {
+      throw new Error('Text string not found in object!');
     }
+    switch (object._ht3d.tag) {
+      case 'h1':
+      case 'h2':
+      case 'h3':
+      case 'h4':
+      case 'h5':
+      case 'h6':
+        return makeText3D(object);
+
+      default:
+        return makeTextSprite(object);
+    }
+  }
+
+  return {
+    make: make
   };
 };
 
-},{"./font-cache.js":309,"./window-utils.js":319,"three":314}],318:[function(require,module,exports){
+},{"./font-cache.js":309,"./units.js":318,"./window-utils.js":320,"three":314}],318:[function(require,module,exports){
+/*
+ * units.js
+ * Copyright 2017 Lucas Neves <lcneves@gmail.com>
+ *
+ * Utility functions for parsing and converting style units.
+ * Part of the Livre project.
+ */
+
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var windowUtils = require('./window-utils.js');
+
+var REM_SIZE = 16;
+
+function parseSize(size) {
+  var supportedFormats = ['px', 'rem', 'em', 'vw', 'vh', '%'];
+
+  if (typeof size === 'number') {
+    return {
+      quantum: size,
+      unit: 'px'
+    };
+  } else if (typeof size === 'string') {
+
+    if (!isNaN(size)) {
+      return {
+        quantum: +size,
+        unit: 'px'
+      };
+    }
+
+    var quantum;
+    var unit;
+
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = supportedFormats[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var format = _step.value;
+
+        if (size.endsWith(format)) {
+          quantum = size.substring(0, size.length - format.length);
+          quantum = +quantum;
+          unit = format;
+          break;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (!isNaN(quantum)) {
+      return {
+        quantum: quantum,
+        unit: unit
+      };
+    } else {
+      throw new Error('Unsupported size! Received: ' + size);
+    }
+  } else {
+    throw new Error('Unsupported format! Expected string or number, received: ' + (typeof size === 'undefined' ? 'undefined' : _typeof(size)));
+  }
+}
+
+function convert(object, parameter, unit) {
+
+  var parsed = parseSize(object.getStyle(parameter));
+  var quantum;
+
+  switch (parsed.unit) {
+
+    case 'px':
+      quantum = parsed.quantum;
+      break;
+
+    case 'rem':
+      quantum = parsed.quantum * REM_SIZE;
+      break;
+
+    case 'em':
+      quantum = parsed.quantum * object.fontSize;
+      break;
+
+    case 'vw':
+      quantum = parsed.quantum * windowUtils.worldToPixels;
+      break;
+
+    case 'vh':
+      quantum = parsed.quantum * windowUtils.worldToPixels / windowUtils.aspectRatio;
+      break;
+
+    case '%':
+      var multiplier = quantum / 100;
+      var currentObject = object;
+      var parentObject;
+      while (currentObject._parent) {
+        parentObject = currentObject._parent;
+        var parentSize = parseSize(parentObject, parameter);
+        if (parentSize.unit === '%') {
+          multiplier *= parentSize.quantum / 100;
+        } else {
+          quantum = convert(parentObject, parameter, unit) * multiplier;
+          break;
+        }
+        currentObject = parentObject;
+      }
+      break;
+  }
+
+  if (unit === 'world') {
+    quantum = quantum / windowUtils.worldToPixels;
+  }
+
+  return quantum;
+}
+
+module.exports.parse = parseSize;
+module.exports.convert = convert;
+
+},{"./window-utils.js":320}],319:[function(require,module,exports){
 /*
  * click.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -52557,7 +52715,7 @@ module.exports = function (THREE, renderer, camera, body) {
   }
 };
 
-},{}],319:[function(require,module,exports){
+},{}],320:[function(require,module,exports){
 /*
  * window-utils.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
@@ -52570,18 +52728,33 @@ module.exports = function (THREE, renderer, camera, body) {
 
 var _worldWidth = undefined;
 var _windowWidth = undefined;
+var _windowHeight = undefined;
 
 module.exports = {
-  init: function init(worldWidth, windowWidth) {
-    _windowWidth = windowWidth;
+  init: function init(worldWidth, windowWidth, windowHeight) {
     _worldWidth = worldWidth;
+    _windowWidth = windowWidth;
+    _windowHeight = windowHeight;
   },
+
   get windowWidth() {
     return _windowWidth;
   },
 
   set windowWidth(value) {
     _windowWidth = value;
+  },
+
+  get windowHeight() {
+    return _windowHeight;
+  },
+
+  set windowHeight(value) {
+    _windowHeight = value;
+  },
+
+  get aspectRatio() {
+    return _windowWidth / _windowHeight;
   },
 
   // Returns the number of pixels that is equivalent of one world unit

@@ -6,7 +6,6 @@ module.exports = {
       'padding': '1rem 2rem'
     },
     'p': {
-      'margin': '1rem 0'
     }
   },
   'ids': {
