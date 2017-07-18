@@ -10,7 +10,7 @@
 
 require('babel-polyfill');
 
-const livre3d = require('livre3d');
+const w3d = require('w3d');
 
 const stylesheets = [
   require('./style/defaults.js'),
@@ -35,5 +35,5 @@ const theme = {
 };
 
 // All set, let's initialize the engine!
-livre3d.init({ theme: theme });
+w3d.init({ theme: theme });
 
