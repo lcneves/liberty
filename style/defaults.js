@@ -19,11 +19,12 @@ module.exports = {
   },
 
   'defaults': {
+    'display': 'block',
     'direction': 'column',
     'wrap': 'nowrap',
     'justify-content': 'start',
     'align-items': 'start',
-    'align-self': 'start',
+    'align-self': 'initial',
     'padding': 0,
     'margin': 0,
     'width': 'initial',
@@ -40,30 +41,24 @@ module.exports = {
       'color': 0x000000
     },
 
-    'text': {
-      'display': 'inline',
-      'direction': 'row'
-    },
-
     'surface': {
       'display': 'plane'
     },
 
     'div': {
-      'display': 'block'
+      'align-self': 'stretch'
     },
 
     'span': {
-      'display': 'inline'
     },
 
     'p': {
-      'display': 'block',
+      'align-self': 'stretch',
       'margin': '0 1em 0'
     },
 
     'h1': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 32,
       'font-height': 8,
@@ -71,7 +66,7 @@ module.exports = {
     },
 
     'h2': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 24,
       'font-height': 6,
@@ -79,7 +74,7 @@ module.exports = {
     },
 
     'h3': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 18.7,
       'font-height': 4.67,
@@ -87,7 +82,7 @@ module.exports = {
     },
 
     'h4': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 16,
       'font-height': 4,
@@ -95,7 +90,7 @@ module.exports = {
     },
 
     'h5': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 13.3,
       'font-height': 3.33,
@@ -104,7 +99,7 @@ module.exports = {
     },
 
     'h6': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 10.7,
       'font-height': 2.67,

@@ -65,7 +65,7 @@ module.exports = function (options) {
 
 require('babel-polyfill');
 
-var livre3d = require('livre3d');
+var w3d = require('w3d');
 
 var stylesheets = [require('./style/defaults.js'), require('./style/liberty.js')];
 
@@ -84,9 +84,9 @@ var theme = {
 };
 
 // All set, let's initialize the engine!
-livre3d.init({ theme: theme });
+w3d.init({ theme: theme });
 
-},{"./lib/templates.js":5,"./style/defaults.js":304,"./style/liberty.js":305,"babel-polyfill":6,"livre3d":311}],5:[function(require,module,exports){
+},{"./lib/templates.js":5,"./style/defaults.js":304,"./style/liberty.js":305,"babel-polyfill":6,"w3d":311}],5:[function(require,module,exports){
 'use strict';
 
 var pug = require('pug-runtime');
@@ -7243,11 +7243,12 @@ module.exports = {
   },
 
   'defaults': {
+    'display': 'block',
     'direction': 'column',
     'wrap': 'nowrap',
     'justify-content': 'start',
     'align-items': 'start',
-    'align-self': 'start',
+    'align-self': 'initial',
     'padding': 0,
     'margin': 0,
     'width': 'initial',
@@ -7264,30 +7265,23 @@ module.exports = {
       'color': 0x000000
     },
 
-    'text': {
-      'display': 'inline',
-      'direction': 'row'
-    },
-
     'surface': {
       'display': 'plane'
     },
 
     'div': {
-      'display': 'block'
+      'align-self': 'stretch'
     },
 
-    'span': {
-      'display': 'inline'
-    },
+    'span': {},
 
     'p': {
-      'display': 'block',
+      'align-self': 'stretch',
       'margin': '0 1em 0'
     },
 
     'h1': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 32,
       'font-height': 8,
@@ -7295,7 +7289,7 @@ module.exports = {
     },
 
     'h2': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 24,
       'font-height': 6,
@@ -7303,7 +7297,7 @@ module.exports = {
     },
 
     'h3': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 18.7,
       'font-height': 4.67,
@@ -7311,7 +7305,7 @@ module.exports = {
     },
 
     'h4': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 16,
       'font-height': 4,
@@ -7319,7 +7313,7 @@ module.exports = {
     },
 
     'h5': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 13.3,
       'font-height': 3.33,
@@ -7328,7 +7322,7 @@ module.exports = {
     },
 
     'h6': {
-      'display': 'block',
+      'align-self': 'stretch',
       'font-weight': 'bold',
       'font-size': 10.7,
       'font-height': 2.67,
@@ -7706,7 +7700,7 @@ module.exports.makeWordGeometry = makeWordGeometry;
  * ht3d.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
  *
- * Exports a function that parses an HT3D string and returns a Livre3D object.
+ * Exports a function that parses an HT3D string and returns a w3d object.
  * Part of the Livre project.
  */
 
@@ -51594,7 +51588,7 @@ e[t>>5]|=128<<24-t%32,e[(t+64>>9<<4)+15]=t;for(var c=0;c<e.length;c+=16){n=E[0],
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
  *
  * Exports an object that extends THREE.Object3D with extra functionality.
- * Part of the Livre project.
+ * Part of the w3d project.
  */
 
 'use strict';
@@ -51623,14 +51617,16 @@ module.exports = function (theme, options) {
   var units = require('./units.js');
   var messages = require('./messages.js');
 
+  var AXES = ['x', 'y', 'z'];
+
   var Background = function (_THREE$Mesh) {
     _inherits(Background, _THREE$Mesh);
 
     function Background(object) {
       _classCallCheck(this, Background);
 
-      if (object && object._isLivreObject) {
-        var dimensions = object.dimensions;
+      if (object && object._isw3dObject) {
+        var dimensions = object.stretchedDimensions;
         var material = new THREE.MeshPhongMaterial({
           color: object.getStyle('background-color')
         });
@@ -51717,74 +51713,185 @@ module.exports = function (theme, options) {
       }
   }
 
+  function makeInitialVirtualBox() {
+    return {
+      x: 0,
+      y: 0,
+      z: 0
+    };
+  }
+
+  function _updateStretchedDimensions(object) {
+    if (!object.parentDimensions) {
+      if (object._parent) {
+        object.parentDimensions = object._parent.dimensions;
+      } else {
+        return object.stretchedDimensions = object.dimensions;
+      }
+    }
+
+    var display = object.getStyle('display');
+    var parentDirection = object._parent.getStyle('direction');
+    var alignSelf = object.getStyle('align-self');
+    var align = alignSelf !== 'initial' ? alignSelf : object._parent.getStyle('align-items');
+
+    var dimensions = object.dimensions;
+
+    switch (display) {
+      case 'plane':
+        dimensions.x = object.parentDimensions.x;
+        dimensions.y = object.parentDimensions.y;
+        break;
+
+      case 'block':
+        if (align === 'stretch') {
+          if (parentDirection === 'column') {
+            dimensions.x = object.parentDimensions.x;
+          } else if (parentDirection === 'row') {
+            dimensions.y = object.parentDimensions.y;
+          }
+        }
+        break;
+    }
+
+    return object.stretchedDimensions = dimensions;
+  }
+
   /*
    * Gives the object's world dimensions in a boundary box.
-   * By default, does not include margins; only paddings.
+   * Does not include margins; only paddings.
    */
-  function getDimensions(object, options) {
-    if (object._isLivreObject) {
-      options = (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' && options !== null ? options : {};
-      var virtualBox = {
-        x: 0,
-        y: 0,
-        z: 0
-      };
-      var _iteratorNormalCompletion = true;
-      var _didIteratorError = false;
-      var _iteratorError = undefined;
+  function _updateDimensions(object) {
+    options = (typeof options === 'undefined' ? 'undefined' : _typeof(options)) === 'object' && options !== null ? options : {};
+    var virtualBox = makeInitialVirtualBox();
 
-      try {
-        for (var _iterator = object.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-          var child = _step.value;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
 
-          if (!child._ignoreSize) {
-            var dimensions = getDimensions(child, { includeMargin: true });
-            var _arr = ['x', 'y', 'z'];
-            for (var _i = 0; _i < _arr.length; _i++) {
-              var axis = _arr[_i];
-              var directionAxis = getDirectionAxis(options.direction);
+    try {
+      for (var _iterator = object.children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var child = _step.value;
+
+        if (!child._ignoreSize) {
+          var dimensions = child.isw3dObject ? addSpacers(child.updateDimensions(), getSpacers(child, 'margin')) : getDimensionsFromBbox(getBboxFromObject(child));
+
+          var directionAxis = getDirectionAxis(options.direction);
+          var _iteratorNormalCompletion3 = true;
+          var _didIteratorError3 = false;
+          var _iteratorError3 = undefined;
+
+          try {
+            for (var _iterator3 = AXES[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+              var axis = _step3.value;
+
               if (axis === directionAxis) {
                 virtualBox[axis] += dimensions[axis];
               } else {
                 virtualBox[axis] = Math.max(virtualBox[axis], dimensions[axis]);
               }
             }
+          } catch (err) {
+            _didIteratorError3 = true;
+            _iteratorError3 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                _iterator3.return();
+              }
+            } finally {
+              if (_didIteratorError3) {
+                throw _iteratorError3;
+              }
+            }
           }
         }
-      } catch (err) {
-        _didIteratorError = true;
-        _iteratorError = err;
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return) {
+          _iterator.return();
+        }
       } finally {
-        try {
-          if (!_iteratorNormalCompletion && _iterator.return) {
-            _iterator.return();
-          }
-        } finally {
-          if (_didIteratorError) {
-            throw _iteratorError;
-          }
+        if (_didIteratorError) {
+          throw _iteratorError;
         }
       }
-
-      virtualBox.x += units.convert(object, 'padding-left', 'world') + units.convert(object, 'padding-right', 'world');
-      virtualBox.y += units.convert(object, 'padding-top', 'world') + units.convert(object, 'padding-bottom', 'world');
-      virtualBox.z += units.convert(object, 'padding-far', 'world') + units.convert(object, 'padding-near', 'world');
-
-      if (options && options.includeMargin) {
-        virtualBox.x += units.convert(object, 'margin-left', 'world') + units.convert(object, 'margin-right', 'world');
-        virtualBox.y += units.convert(object, 'margin-top', 'world') + units.convert(object, 'margin-bottom', 'world');
-        virtualBox.z += units.convert(object, 'margin-far', 'world') + units.convert(object, 'margin-near', 'world');
-      }
-
-      return virtualBox;
-    } else {
-      // Not _isLivreObject
-      return getDimensionsFromBbox(getBboxFromObject(object));
     }
+
+    virtualBox = addSpacers(virtualBox, getSpacers(object, 'padding'));
+
+    var _iteratorNormalCompletion2 = true;
+    var _didIteratorError2 = false;
+    var _iteratorError2 = undefined;
+
+    try {
+      for (var _iterator2 = object.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+        var _child = _step2.value;
+
+        _child.parentDimensions = virtualBox;
+        _child.updateStretchedDimensions();
+      }
+    } catch (err) {
+      _didIteratorError2 = true;
+      _iteratorError2 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion2 && _iterator2.return) {
+          _iterator2.return();
+        }
+      } finally {
+        if (_didIteratorError2) {
+          throw _iteratorError2;
+        }
+      }
+    }
+
+    return virtualBox;
+  }
+
+  function getSpacers(object, type) {
+    return {
+      x: units.convert(object, type + '-left', 'world') + units.convert(object, type + '-right', 'world'),
+      y: units.convert(object, type + '-top', 'world') + units.convert(object, type + '-bottom', 'world'),
+      z: units.convert(object, type + '-far', 'world') + units.convert(object, type + '-near', 'world')
+    };
+  }
+
+  function addSpacers(box, spacers) {
+    var _iteratorNormalCompletion4 = true;
+    var _didIteratorError4 = false;
+    var _iteratorError4 = undefined;
+
+    try {
+      for (var _iterator4 = AXES[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+        var axis = _step4.value;
+
+        box[axis] += spacers[axis];
+      }
+    } catch (err) {
+      _didIteratorError4 = true;
+      _iteratorError4 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion4 && _iterator4.return) {
+          _iterator4.return();
+        }
+      } finally {
+        if (_didIteratorError4) {
+          throw _iteratorError4;
+        }
+      }
+    }
+
+    return box;
   }
 
   function getSpacer(object, direction) {
-    if (object._isLivreObject) {
+    if (object._isw3dObject) {
       return units.convert(object, 'margin-' + direction, 'world') + units.convert(object, 'padding-' + direction, 'world');
     } else {
       return 0;
@@ -51799,7 +51906,7 @@ module.exports = function (theme, options) {
    * - the z axis grows to the near.
    */
   function getBoundaries(object) {
-    if (object._isLivreObject) {
+    if (object._isw3dObject) {
       var dimensions = object.dimensions;
       return {
         left: 0,
@@ -51839,27 +51946,47 @@ module.exports = function (theme, options) {
   function makeWorldPosition(childObject, parentObject, offset) {
     var parentBoundaries = parentObject.boundaries;
     var parentDimensions = parentObject.dimensions;
-    var childBoundaries = childObject._isLivreObject ? null : getBoundaries(childObject);
+    var childBoundaries = childObject._isw3dObject ? null : getBoundaries(childObject);
 
     var position = {};
 
-    var _arr2 = ['x', 'y', 'z'];
-    for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
-      var axis = _arr2[_i2];
-      position[axis] = offset[axis].distance;
-      if (!childObject._isLivreObject) {
-        position[axis] += childBoundaries[offset[axis].reference];
+    var _iteratorNormalCompletion5 = true;
+    var _didIteratorError5 = false;
+    var _iteratorError5 = undefined;
+
+    try {
+      for (var _iterator5 = AXES[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+        var axis = _step5.value;
+
+        position[axis] = offset[axis].distance;
+        if (!childObject._isw3dObject) {
+          position[axis] += childBoundaries[offset[axis].reference];
+        }
+        switch (offset[axis].reference) {
+          case 'right':
+          case 'top':
+          case 'near':
+            position[axis] = -position[axis];
+            break;
+          default:
+            break;
+        }
       }
-      switch (offset[axis].reference) {
-        case 'right':
-        case 'top':
-        case 'near':
-          position[axis] = -position[axis];
-          break;
-        default:
-          break;
+    } catch (err) {
+      _didIteratorError5 = true;
+      _iteratorError5 = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion5 && _iterator5.return) {
+          _iterator5.return();
+        }
+      } finally {
+        if (_didIteratorError5) {
+          throw _iteratorError5;
+        }
       }
     }
+
     return position;
   }
 
@@ -51889,16 +52016,16 @@ module.exports = function (theme, options) {
   }
 
   function _resizeChildren(object) {
-    var _iteratorNormalCompletion2 = true;
-    var _didIteratorError2 = false;
-    var _iteratorError2 = undefined;
+    var _iteratorNormalCompletion6 = true;
+    var _didIteratorError6 = false;
+    var _iteratorError6 = undefined;
 
     try {
-      for (var _iterator2 = object.children[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-        var child = _step2.value;
+      for (var _iterator6 = object.children[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+        var child = _step6.value;
 
 
-        if (child._isLivreObject) {
+        if (child._isw3dObject) {
           child.resizeChildren();
         }
 
@@ -51909,16 +52036,16 @@ module.exports = function (theme, options) {
         }
       }
     } catch (err) {
-      _didIteratorError2 = true;
-      _iteratorError2 = err;
+      _didIteratorError6 = true;
+      _iteratorError6 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion2 && _iterator2.return) {
-          _iterator2.return();
+        if (!_iteratorNormalCompletion6 && _iterator6.return) {
+          _iterator6.return();
         }
       } finally {
-        if (_didIteratorError2) {
-          throw _iteratorError2;
+        if (_didIteratorError6) {
+          throw _iteratorError6;
         }
       }
     }
@@ -51932,13 +52059,13 @@ module.exports = function (theme, options) {
     offset.y.distance += getSpacer(object, 'top');
     offset.z.distance += getSpacer(object, 'far');
 
-    var _iteratorNormalCompletion3 = true;
-    var _didIteratorError3 = false;
-    var _iteratorError3 = undefined;
+    var _iteratorNormalCompletion7 = true;
+    var _didIteratorError7 = false;
+    var _iteratorError7 = undefined;
 
     try {
-      for (var _iterator3 = object.children[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-        var child = _step3.value;
+      for (var _iterator7 = object.children[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+        var child = _step7.value;
 
         var position = void 0;
 
@@ -51947,30 +52074,49 @@ module.exports = function (theme, options) {
         } else {
           position = makeWorldPosition(child, object, offset);
           var directionAxis = getDirectionAxis(object.getStyle('direction'));
-          offset[directionAxis].distance += getDimensions(child, { includeMargin: true })[directionAxis];
+          offset[directionAxis].distance += addSpacers(child.dimensions, getSpacers(child, 'margin'))[directionAxis];
         }
 
-        var _arr3 = ['x', 'y', 'z'];
-        for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
-          var axis = _arr3[_i3];
-          child.position[axis] = position[axis];
+        var _iteratorNormalCompletion8 = true;
+        var _didIteratorError8 = false;
+        var _iteratorError8 = undefined;
+
+        try {
+          for (var _iterator8 = AXES[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+            var axis = _step8.value;
+
+            child.position[axis] = position[axis];
+          }
+        } catch (err) {
+          _didIteratorError8 = true;
+          _iteratorError8 = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion8 && _iterator8.return) {
+              _iterator8.return();
+            }
+          } finally {
+            if (_didIteratorError8) {
+              throw _iteratorError8;
+            }
+          }
         }
 
-        if (child._isLivreObject) {
+        if (child._isw3dObject) {
           child.positionChildren();
         }
       }
     } catch (err) {
-      _didIteratorError3 = true;
-      _iteratorError3 = err;
+      _didIteratorError7 = true;
+      _iteratorError7 = err;
     } finally {
       try {
-        if (!_iteratorNormalCompletion3 && _iterator3.return) {
-          _iterator3.return();
+        if (!_iteratorNormalCompletion7 && _iterator7.return) {
+          _iterator7.return();
         }
       } finally {
-        if (_didIteratorError3) {
-          throw _iteratorError3;
+        if (_didIteratorError7) {
+          throw _iteratorError7;
         }
       }
     }
@@ -52018,12 +52164,17 @@ module.exports = function (theme, options) {
         _get(Object3D.prototype.__proto__ || Object.getPrototypeOf(Object3D.prototype), 'add', _this2).call(_this2, options.mesh);
       }
 
-      _this2._isLivreObject = true;
+      _this2._isw3dObject = true;
 
       return _this2;
     }
 
     _createClass(Object3D, [{
+      key: 'updateDimensions',
+      value: function updateDimensions() {
+        return this._dimensions = _updateDimensions(this);
+      }
+    }, {
       key: 'getStyle',
       value: function getStyle(property) {
         if (this._style[property] !== undefined) {
@@ -52038,6 +52189,11 @@ module.exports = function (theme, options) {
       key: 'resizeChildren',
       value: function resizeChildren() {
         _resizeChildren(this);
+      }
+    }, {
+      key: 'updateStretchedDimensions',
+      value: function updateStretchedDimensions() {
+        return this._parent ? this._stretchedDimensions = _updateStretchedDimensions(this) : this.dimensions;
       }
     }, {
       key: 'positionChildren',
@@ -52114,7 +52270,7 @@ module.exports = function (theme, options) {
 
         if (options && options.rearrange) {
           var topObject = this;
-          while (topObject.parent && topObject.parent._isLivreObject) {
+          while (topObject.parent && topObject.parent._isw3dObject) {
             topObject = topObject.parent;
           }
           messages.setMessage('needsArrange', topObject);
@@ -52123,7 +52279,7 @@ module.exports = function (theme, options) {
     }, {
       key: 'dimensions',
       get: function get() {
-        return getDimensions(this);
+        return this._dimensions ? this._dimensions : this.updateDimensions();
       }
     }, {
       key: 'boundaries',
@@ -52134,6 +52290,22 @@ module.exports = function (theme, options) {
       key: 'fontSize',
       get: function get() {
         return getFontSize(this);
+      }
+    }, {
+      key: 'parentDimensions',
+      get: function get() {
+        return this._parentDimensions;
+      },
+      set: function set(dimensions) {
+        this._parentDimensions = dimensions;
+      }
+    }, {
+      key: 'stretchedDimensions',
+      get: function get() {
+        return this._stretchedDimensions ? this._stretchedDimensions : this.updateStretchedDimensions();
+      },
+      set: function set(dimensions) {
+        this._stretchedDimensions = dimensions;
       }
     }]);
 
@@ -52148,7 +52320,7 @@ module.exports = function (theme, options) {
  * style.js
  * Copyright 2017 Lucas Neves <lcneves@gmail.com>
  *
- * Utility tools for styling with the Livre3D engine.
+ * Utility tools for styling with the w3d engine.
  * Part of the Livre project.
  */
 
