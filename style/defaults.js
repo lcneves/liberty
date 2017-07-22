@@ -25,6 +25,7 @@ module.exports = {
     'justify-content': 'start',
     'align-items': 'start',
     'align-self': 'initial',
+    'grow': 0,
     'padding': 0,
     'margin': 0,
     'width': 'initial',
@@ -107,4 +108,3 @@ module.exports = {
     }
   }
 };
-

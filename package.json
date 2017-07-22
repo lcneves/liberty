@@ -28,7 +28,8 @@
   "dependencies": {
     "babel-polyfill": "^6.23.0",
     "w3d": "latest",
-    "three": "^0.85.2"
+    "three": "^0.85.2",
+    "pug-runtime": "latest"
   },
   "devDependencies": {
     "babel-preset-env": "latest",
