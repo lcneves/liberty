@@ -10,12 +10,12 @@
 
 require('babel-polyfill');
 
-const w3d = require('w3d');
-
 const stylesheets = [
   require('./style/defaults.js'),
   require('./style/liberty.js')
 ];
+
+const resources = require('./load-resources.js')(stylesheets);
 
 const lights = [
   { type: 'ambient' },
@@ -26,6 +26,7 @@ const templates = require('./lib/templates.js');
 
 const theme = {
   stylesheets: stylesheets,
+  resources: resources,
   lights: lights,
   background: 0xffffff,
   worldWidth: 100,
@@ -35,5 +36,4 @@ const theme = {
 };
 
 // All set, let's initialize the engine!
-w3d.init({ theme: theme });
-
+require('w3d')({ theme: theme });

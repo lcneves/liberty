@@ -7278,7 +7278,9 @@ module.exports = {
 
     'p': {
       'align-self': 'stretch',
-      'margin': '0 1em 0'
+      'margin': '0 1em 0',
+      'direction': 'row',
+      'wrap': 'wrap'
     },
 
     'h1': {
@@ -52835,7 +52837,7 @@ module.exports = function (fonts) {
       // after setting the canvas width/height we have to re-set font to apply!?
       // looks like ctx reset
       ctx.font = fontSize + 'px ' + object.getStyle('font-family');
-      ctx.fillStyle = getColorString(object.getStyle('color'));
+      ctx.fillStyle = 'white';
       ctx.fillText(text, 0, fontSize, canvas.width);
 
       /*
@@ -52861,7 +52863,10 @@ module.exports = function (fonts) {
       texture = new THREE.CanvasTexture(canvas);
       texture.minFilter = THREE.LinearFilter; // NearestFilter;
 
-      spriteMaterial = new THREE.SpriteMaterial({ map: texture });
+      spriteMaterial = new THREE.SpriteMaterial({
+        map: texture,
+        color: object.getStyle('color')
+      });
       sprite = new TextSprite(spriteMaterial);
 
       resolve(sprite);

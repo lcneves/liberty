@@ -55,7 +55,9 @@ module.exports = {
 
     'p': {
       'align-self': 'stretch',
-      'margin': '0 1em 0'
+      'margin': '0 1em 0',
+      'direction': 'row',
+      'wrap': 'wrap'
     },
 
     'h1': {
