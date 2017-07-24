@@ -34,12 +34,16 @@ module.exports = {
   },
 
   'tags': {
+    'word': {
+      'direction': 'row'
+    },
     'body': {
       'font-family': 'sans-serif',
       'font-size': 16,
       'font-height': 1,
       'font-weight': 'regular',
-      'color': 0x000000
+      'color': 0x000000,
+      'word-spacing': '0.3em'
     },
 
     'surface': {
@@ -62,6 +66,8 @@ module.exports = {
 
     'h1': {
       'align-self': 'stretch',
+      'direction': 'row',
+      'wrap': 'wrap',
       'font-weight': 'bold',
       'font-size': 32,
       'font-height': 8,
@@ -70,6 +76,8 @@ module.exports = {
 
     'h2': {
       'align-self': 'stretch',
+      'direction': 'row',
+      'wrap': 'wrap',
       'font-weight': 'bold',
       'font-size': 24,
       'font-height': 6,
@@ -78,6 +86,8 @@ module.exports = {
 
     'h3': {
       'align-self': 'stretch',
+      'direction': 'row',
+      'wrap': 'wrap',
       'font-weight': 'bold',
       'font-size': 18.7,
       'font-height': 4.67,
@@ -86,6 +96,8 @@ module.exports = {
 
     'h4': {
       'align-self': 'stretch',
+      'direction': 'row',
+      'wrap': 'wrap',
       'font-weight': 'bold',
       'font-size': 16,
       'font-height': 4,
@@ -94,6 +106,8 @@ module.exports = {
 
     'h5': {
       'align-self': 'stretch',
+      'direction': 'row',
+      'wrap': 'wrap',
       'font-weight': 'bold',
       'font-size': 13.3,
       'font-height': 3.33,
@@ -103,6 +117,8 @@ module.exports = {
 
     'h6': {
       'align-self': 'stretch',
+      'direction': 'row',
+      'wrap': 'wrap',
       'font-weight': 'bold',
       'font-size': 10.7,
       'font-height': 2.67,
