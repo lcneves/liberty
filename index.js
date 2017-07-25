@@ -20,6 +20,7 @@ const resources = require('./load-resources.js')(stylesheets);
 const lights = [
   { type: 'ambient' },
   { type: 'directional' }
+  //{ type: 'point' }
 ];
 
 const templates = require('./lib/templates.js');

@@ -10,13 +10,15 @@ module.exports = {
   },
   'classes': {
     'nav': {
+      'padding': '1.5rem',
       'background-color': 0xddffdd
     }
   },
   'ids': {
     'logo': {
       'color': 0x00aa00,
-      'font-weight': 'bold'
+      'font-weight': 'bold',
+      'margin-far': '0.6em'
     },
     'text-container': {
       'grow': 1,
