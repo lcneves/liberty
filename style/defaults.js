@@ -30,7 +30,13 @@ module.exports = {
     'margin': 0,
     'width': 'initial',
     'height': 'initial',
-    'depth': 'initial'
+    'depth': 'initial',
+    'min-width': '0',
+    'min-height': '0',
+    'min-depth': '0',
+    'max-width': Infinity,
+    'max-height': Infinity,
+    'max-depth': Infinity
   },
 
   'tags': {
