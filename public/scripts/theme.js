@@ -7544,6 +7544,11 @@ var Body = function (_Object3D) {
     },
     set: function set(newSize) {}
   }, {
+    key: 'availableSpace',
+    get: function get() {
+      return this.outerSize;
+    }
+  }, {
     key: 'aspectRatio',
     set: function set(value) {
       this._aspect = value;
@@ -51823,7 +51828,7 @@ module.exports = {
     throw new Error('Resize function has not been overridden by implementation!');
   },
   w3dAllNeedUpdate: function w3dAllNeedUpdate() {
-    this.w3dNeedsUpdate = ['size', 'innerSize', 'totalSize', 'boundaries'];
+    this.w3dNeedsUpdate = ['size', 'innerSize', 'boundaries', 'containerSpace'];
   },
 
 
@@ -51886,28 +51891,22 @@ module.exports = {
     return this._outerSize;
   },
 
-  set outerSize(newSize) {
-    var oldSize = this.outerSize;
-    for (var axis in newSize) {
-      oldSize[axis] = newSize[axis];
-    }
-    this._outerSize = newSize;
-  },
-
-  _availableSpace: {
-    x: Infinity,
-    y: Infinity,
-    z: Infinity
-  },
-
   get availableSpace() {
     return this._availableSpace;
   },
 
-  setAvailableSpace: function setAvailableSpace(axis, value) {
-    this._availableSpace[axis] = value;
-  },
+  set availableSpace(value) {
+    var _arr = ['x', 'y', 'z'];
 
+    for (var _i = 0; _i < _arr.length; _i++) {
+      var axis = _arr[_i];
+      if (typeof value[axis] !== 'number' || isNaN(value[axis])) {
+        throw new Error('New values for availableSpace contain a non-number!' + ' Received: ' + JSON.stringify(value));
+      }
+    }
+    this._availableSpace = value;
+    this.w3dAllNeedUpdate();
+  },
 
   get minContentContribution() {
     if (!this._minContentContribution) {
@@ -52014,10 +52013,10 @@ function getAxes(object) {
       axes = { main: 'x', cross: 'y', other: 'z' };
       break;
     case 'stack':
-      axes = { main: 'y', cross: 'x', other: 'z' };
+      axes = { main: 'z', cross: 'x', other: 'y' };
       break;
     default:
-      axes = { main: 'z', cross: 'x', other: 'y' };
+      axes = { main: 'y', cross: 'x', other: 'z' };
       break;
   }
 
@@ -52026,11 +52025,10 @@ function getAxes(object) {
 
 function getWorldDimensions(object, prefix) {
   prefix = prefix ? prefix + '-' : '';
-  var radical = ['width', 'height', 'depth'];
   var dimensions = {};
 
-  for (var i = 0; i < radical.length; i++) {
-    dimensions[AXES[i]] = units.convert(object, prefix + radical[i], 'world');
+  for (var _i = 0; _i < CSS_AXES.length; _i++) {
+    dimensions[AXES[_i]] = units.convert(object, prefix + CSS_AXES[_i], 'world');
   }
 
   return dimensions;
@@ -52112,6 +52110,23 @@ function getSpacers(object, type) {
   }
 }
 
+function getSizesFromStyle(object) {
+  if (object._isw3dObject) {
+    var sizes = { x: {}, y: {}, z: {} };
+    var _arr = ['', 'min-', 'max-'];
+    for (var _i2 = 0; _i2 < _arr.length; _i2++) {
+      var prefix = _arr[_i2];
+      var propName = prefix ? prefix.substring(0, 3) : 'fixed';
+      for (var _i3 = 0; _i3 < AXES.length; _i3++) {
+        sizes[AXES[_i3]][propName] = units.convert(object, prefix + CSS_AXES[_i3], 'world');
+      }
+    }
+    return sizes;
+  } else {
+    throw new Error('Object is not a w3d object!');
+  }
+}
+
 function addSpacers(box, spacers) {
   var _iteratorNormalCompletion = true;
   var _didIteratorError = false;
@@ -52186,6 +52201,10 @@ function getMargins(object, axis) {
   }
 }
 
+function getContainerSpace(object) {
+  return removeSpacers(removeSpacers(object.availableSpace, getSpacers(object, 'margin')), getSpacers(object, 'padding'));
+}
+
 function getStretchedSize(object) {
   var display = object.getStyle('display');
   var parentDirection = object._parent.getStyle('direction');
@@ -52230,19 +52249,24 @@ function getInnerSize(object) {
   }
 }
 
+function getMainAxisInnerSize(object) {
+
+  return Math.max(object.minContentContribution[AXES[i]], Math.min(object.maxContentContribution[AXES[i]], object.availableSpace[AXES[i]]));
+}
+
 function getOuterSize(object) {
   if (object._isw3dObject) {
     var axes = getAxes(object);
     var dimensions = {};
-    for (var i = 0; i < AXES.length; i++) {
-      var size = units.convert(object, CSS_AXES[i], 'world');
+    for (var _i4 = 0; _i4 < AXES.length; _i4++) {
+      var size = units.convert(object, CSS_AXES[_i4], 'world');
       if (size !== undefined) {
-        dimensions[AXES[i]] = size + getMargins(object, CSS_AXES[i]);
+        dimensions[AXES[_i4]] = size + getMargins(object, CSS_AXES[_i4]);
       } else {
-        if (AXES[i] === axes['main']) {
-          dimensions[AXES[i]] = Math.max(object.minContentContribution, Math.min(object.maxContentContribution, object.availableSpace));
+        if (AXES[_i4] === axes['main']) {
+          dimensions[AXES[_i4]] = Math.max(object.minContentContribution[AXES[_i4]], Math.min(object.maxContentContribution[AXES[_i4]], object.availableSpace[AXES[_i4]]));
         } else {
-          dimensions[AXES[i]] = undefined;
+          dimensions[AXES[_i4]] = undefined;
         }
       }
     }
@@ -52469,9 +52493,7 @@ function makeInitialPosition() {
  * Returns the world position that the child should have
  * given its relative position to the parent.
  */
-function makeWorldPosition(childObject, parentObject, offset) {
-  var childBoundaries = childObject._isw3dObject ? null : getBoundaries(childObject);
-
+function makeWorldPosition(object, offset) {
   var position = {};
 
   var _iteratorNormalCompletion8 = true;
@@ -52483,8 +52505,8 @@ function makeWorldPosition(childObject, parentObject, offset) {
       var axis = _step8.value;
 
       position[axis] = offset[axis].distance;
-      if (!childObject._isw3dObject) {
-        position[axis] += childBoundaries[offset[axis].reference];
+      if (!object._isw3dObject) {
+        position[axis] += object.boundaries[offset[axis].reference];
       }
       switch (offset[axis].reference) {
         case 'right':
@@ -52514,10 +52536,10 @@ function makeWorldPosition(childObject, parentObject, offset) {
 
 function positionLine(object, offset, minContributions, firstChild, lastChild) {
   var axes = getAxes(object);
-  var availableSpace = object.innerSize[axes['main']] - minContributions;
+  var availableSpace = Math.max(object.containerSpace[axes['main']] - minContributions, 0);
   var totalGrowth = 0;
-  for (var i = firstChild; i <= lastChild; i++) {
-    var child = object.children[i];
+  for (var _i5 = firstChild; _i5 <= lastChild; _i5++) {
+    var child = object.children[_i5];
     var grow = child._isw3dObject ? child.getStyle('grow') : 0;
     totalGrowth += grow;
   }
@@ -52525,8 +52547,8 @@ function positionLine(object, offset, minContributions, firstChild, lastChild) {
   var crossSize = 0;
   var otherSize = 0;
 
-  for (var _i = firstChild; _i <= lastChild; _i++) {
-    var _child = object.children[_i];
+  for (var _i6 = firstChild; _i6 <= lastChild; _i6++) {
+    var _child = object.children[_i6];
     if (_child._isBackground) {
       continue;
     }
@@ -52534,18 +52556,20 @@ function positionLine(object, offset, minContributions, firstChild, lastChild) {
     var _grow = availableSpace > 0 && _child._isw3dObject ? _child.getStyle('grow') : 0;
     var growthFactor = totalGrowth ? _grow / totalGrowth : 0;
 
-    _child.setAvailableSpace('main', _child.minContentContribution[axes['main']] + availableSpace * growthFactor);
-    var _arr = ['cross', 'other'];
-    for (var _i2 = 0; _i2 < _arr.length; _i2++) {
-      var axis = _arr[_i2];
-      _child.setAvailableSpace(axes[axis], object.innerSize[axes[axis]] - offset[axes[axis]].distance);
+    var childAvailableSpace = {};
+    childAvailableSpace[axes['main']] = _child.minContentContribution[axes['main']] + availableSpace * growthFactor;
+    var _arr2 = ['cross', 'other'];
+    for (var _i7 = 0; _i7 < _arr2.length; _i7++) {
+      var axis = _arr2[_i7];
+      childAvailableSpace[axes[axis]] = Math.max(object.containerSpace[axes[axis]] - offset[axes[axis]].distance, 0);
     }
+    _child.availableSpace = childAvailableSpace;
 
     if (_child._isw3dObject) {
-      _child.positionChildren();
+      _child.arrangeChildren();
     }
 
-    var childPosition = makeWorldPosition(_child, object, offset);
+    var childPosition = makeWorldPosition(_child, offset);
     var _iteratorNormalCompletion9 = true;
     var _didIteratorError9 = false;
     var _iteratorError9 = undefined;
@@ -52588,7 +52612,7 @@ function positionChildren(object) {
   offset.y.distance += getSpacer(object, 'top');
   offset.z.distance += getSpacer(object, 'far');
 
-  // At object time, we can only know for sure the object's main axis
+  // At this time, we can only know for sure the object's main axis
   // dimensions. After positioning the children we will know the rest.
   var objectCrossSize = 0;
   var objectOtherSize = 0;
@@ -52600,41 +52624,24 @@ function positionChildren(object) {
     var child = object.children[currentChild];
 
     if (child._isBackground) {
-      var childPosition = makeWorldPosition(child, object, makeInitialPosition());
-      var _iteratorNormalCompletion10 = true;
-      var _didIteratorError10 = false;
-      var _iteratorError10 = undefined;
-
-      try {
-        for (var _iterator10 = AXES[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-          var axis = _step10.value;
-
-          child.position[axis] = childPosition[axis];
-        }
-      } catch (err) {
-        _didIteratorError10 = true;
-        _iteratorError10 = err;
-      } finally {
-        try {
-          if (!_iteratorNormalCompletion10 && _iterator10.return) {
-            _iterator10.return();
-          }
-        } finally {
-          if (_didIteratorError10) {
-            throw _iteratorError10;
-          }
-        }
+      /*
+      let childPosition = makeWorldPosition(
+        child,
+        makeInitialPosition()
+      );
+      for (let axis of AXES) {
+        child.position[axis] = childPosition[axis];
       }
-
+      */
       continue;
     }
 
     if (wrap && minContributions + child.minContentContribution[objectAxes.main] > object.innerSize[objectAxes.main]) {
-      var _lineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, currentChild - 1);
+      var lineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, currentChild - 1);
 
-      offset[objectAxes['cross']]['distance'] += _lineDimensions.crossSize;
-      objectCrossSize += _lineDimensions.crossSize;
-      objectOtherSize += _lineDimensions.otherSize;
+      offset[objectAxes['cross']]['distance'] += lineDimensions.crossSize;
+      objectCrossSize += lineDimensions.crossSize;
+      objectOtherSize += lineDimensions.otherSize;
 
       lastPositionedChild = currentChild - 1;
       minContributions = child.minContentContribution[objectAxes.main];
@@ -52642,11 +52649,12 @@ function positionChildren(object) {
       minContributions += child.minContentContribution[objectAxes.main];
     }
   }
-  var lineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, object.children.length - 1);
-  objectCrossSize += lineDimensions.crossSize;
-  objectOtherSize += lineDimensions.otherSize;
+  var finalLineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, object.children.length - 1);
+  objectCrossSize += finalLineDimensions.crossSize;
+  objectOtherSize += finalLineDimensions.otherSize;
 
   var newOuterDimensions = {};
+  newOuterDimensions[objectAxes['main']] = Math.min(object.maxContentContribution[objectAxes['main']], object.availableSpace[objectAxes['main']]);
   newOuterDimensions[objectAxes['cross']] = objectCrossSize;
   newOuterDimensions[objectAxes['other']] = objectOtherSize;
   object.outerSize = newOuterDimensions;
@@ -52662,14 +52670,22 @@ function getFontSize(object) {
 }
 
 function updateBackground(object) {
-  for (var index = 0; index < object.children.length; index++) {
-    var child = object.children[index];
+  if (object._hasBackground) {
+    var newBg = new Background(object);
+    var bgIndex;
 
-    if (child._isBackground) {
-      child = new Background(object);
-      child.parent = object;
-      object.children.splice(index, 1, child);
-      break;
+    for (var index = 0; index < object.children.length; index++) {
+      if (object.children[index]._isBackground) {
+        bgIndex = index;
+        break;
+      }
+    }
+
+    if (bgIndex !== undefined) {
+      newBg.parent = object;
+      object.children.splice(bgIndex, 1, newBg);
+    } else {
+      object.add(newBg);
     }
   }
 }
@@ -52709,7 +52725,9 @@ Object.assign(module.exports, {
   forceUpdate: forceUpdate,
   getBoundaries: getBoundaries,
   getContentContribution: getContentContribution,
+  getContainerSpace: getContainerSpace,
   getSize: getSize,
+  getSizesFromStyle: getSizesFromStyle,
   getOuterSize: getOuterSize,
   getAxes: getAxes,
   getFontSize: getFontSize,
@@ -52862,13 +52880,30 @@ var object3DPrototype = {
         }
       }
     }
-
-    this.updateBackground();
   },
+
+
+  set outerSize(newSize) {
+    var updatedSize = {};
+    var sizesFromStyle = objectUtils.getSizesFromStyle(this);
+    for (var axis in newSize) {
+      updatedSize[axis] = sizesFromStyle[axis].fixed ? sizesFromStyle[axis].fixed : Math.max(sizesFromStyle[axis].min, Math.min(sizesFromStyle[axis].max, newSize[axis]));
+    }
+    this._outerSize = updatedSize;
+    this.w3dAllNeedUpdate();
+  },
+
   updateBackground: function updateBackground() {
     objectUtils.updateBackground(this);
   },
 
+
+  get containerSpace() {
+    if (!this._containerSpace) {
+      this._containerSpace = objectUtils.getContainerSpace(this);
+    }
+    return this._containerSpace;
+  },
 
   get stretchedDimensions() {
     if (!this._stretchedDimensions) {
@@ -52883,6 +52918,7 @@ var object3DPrototype = {
   arrangeChildren: function arrangeChildren() {
     this.resize();
     this.positionChildren();
+    this.updateBackground();
   },
   getProperty: function getProperty(property) {
     if (this._ht3d) {
@@ -52902,8 +52938,8 @@ var object3DPrototype = {
   makeStyle: function makeStyle() {
     this._style = style.make(this);
 
-    if (this._style['background-color']) {
-      this.add(new objectUtils.Background(this));
+    if (this._style['background-color'] !== undefined) {
+      this._hasBackground = true;
     }
   },
   makeText: function makeText() {
