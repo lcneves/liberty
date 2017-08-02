@@ -51828,7 +51828,11 @@ module.exports = {
     throw new Error('Resize function has not been overridden by implementation!');
   },
   w3dAllNeedUpdate: function w3dAllNeedUpdate() {
-    this.w3dNeedsUpdate = ['size', 'innerSize', 'boundaries', 'containerSpace'];
+    var updateArray = ['size', 'innerSize', 'boundaries', 'containerSpace', 'minContentContribution', 'maxContentContribution'];
+    if (!this._isw3dObject) {
+      updateArray.push('outerSize');
+    }
+    this.w3dNeedsUpdate = updateArray;
   },
 
 
@@ -51889,6 +51893,16 @@ module.exports = {
       this._outerSize = objectUtils.getOuterSize(this);
     }
     return this._outerSize;
+  },
+
+  set outerSize(newSize) {
+    var updatedSize = {};
+    var sizesFromStyle = objectUtils.getSizesFromStyle(this);
+    for (var axis in newSize) {
+      updatedSize[axis] = sizesFromStyle[axis].fixed ? sizesFromStyle[axis].fixed : Math.max(sizesFromStyle[axis].min, Math.min(sizesFromStyle[axis].max, newSize[axis]));
+    }
+    this._outerSize = updatedSize;
+    this.w3dAllNeedUpdate();
   },
 
   get availableSpace() {
@@ -51988,16 +52002,6 @@ var backgroundPrototype = {
   },
   get outerSize() {
     return this.size;
-  },
-  get boundaries() {
-    return {
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      far: 0,
-      near: 0
-    };
   }
 };
 
@@ -52027,8 +52031,8 @@ function getWorldDimensions(object, prefix) {
   prefix = prefix ? prefix + '-' : '';
   var dimensions = {};
 
-  for (var _i = 0; _i < CSS_AXES.length; _i++) {
-    dimensions[AXES[_i]] = units.convert(object, prefix + CSS_AXES[_i], 'world');
+  for (var i = 0; i < CSS_AXES.length; i++) {
+    dimensions[AXES[i]] = units.convert(object, prefix + CSS_AXES[i], 'world');
   }
 
   return dimensions;
@@ -52090,9 +52094,9 @@ function makeInitialVirtualBox() {
   };
 }
 
-function getSpacer(object, direction) {
+function getSpacer(object, direction, onlyMargin) {
   if (object._isw3dObject) {
-    return units.convert(object, 'margin-' + direction, 'world') + units.convert(object, 'padding-' + direction, 'world');
+    return units.convert(object, 'margin-' + direction, 'world') + onlyMargin ? 0 : units.convert(object, 'padding-' + direction, 'world');
   } else {
     return 0;
   }
@@ -52114,11 +52118,11 @@ function getSizesFromStyle(object) {
   if (object._isw3dObject) {
     var sizes = { x: {}, y: {}, z: {} };
     var _arr = ['', 'min-', 'max-'];
-    for (var _i2 = 0; _i2 < _arr.length; _i2++) {
-      var prefix = _arr[_i2];
+    for (var _i = 0; _i < _arr.length; _i++) {
+      var prefix = _arr[_i];
       var propName = prefix ? prefix.substring(0, 3) : 'fixed';
-      for (var _i3 = 0; _i3 < AXES.length; _i3++) {
-        sizes[AXES[_i3]][propName] = units.convert(object, prefix + CSS_AXES[_i3], 'world');
+      for (var i = 0; i < AXES.length; i++) {
+        sizes[AXES[i]][propName] = units.convert(object, prefix + CSS_AXES[i], 'world');
       }
     }
     return sizes;
@@ -52250,23 +52254,24 @@ function getInnerSize(object) {
 }
 
 function getMainAxisInnerSize(object) {
+  var axes = getAxes(object);
 
-  return Math.max(object.minContentContribution[AXES[i]], Math.min(object.maxContentContribution[AXES[i]], object.availableSpace[AXES[i]]));
+  return Math.max(object.minContentContribution[axes['main']], Math.min(object.maxContentContribution[axes['main']], object.availableSpace[axes['main']]));
 }
 
 function getOuterSize(object) {
   if (object._isw3dObject) {
     var axes = getAxes(object);
     var dimensions = {};
-    for (var _i4 = 0; _i4 < AXES.length; _i4++) {
-      var size = units.convert(object, CSS_AXES[_i4], 'world');
+    for (var i = 0; i < AXES.length; i++) {
+      var size = units.convert(object, CSS_AXES[i], 'world');
       if (size !== undefined) {
-        dimensions[AXES[_i4]] = size + getMargins(object, CSS_AXES[_i4]);
+        dimensions[AXES[i]] = size + getMargins(object, CSS_AXES[i]);
       } else {
-        if (AXES[_i4] === axes['main']) {
-          dimensions[AXES[_i4]] = Math.max(object.minContentContribution[AXES[_i4]], Math.min(object.maxContentContribution[AXES[_i4]], object.availableSpace[AXES[_i4]]));
+        if (AXES[i] === axes['main']) {
+          dimensions[AXES[i]] = Math.max(object.minContentContribution[AXES[i]], Math.min(object.maxContentContribution[AXES[i]], object.availableSpace[AXES[i]]));
         } else {
-          dimensions[AXES[_i4]] = undefined;
+          dimensions[AXES[i]] = undefined;
         }
       }
     }
@@ -52426,8 +52431,7 @@ function getContentContribution(object, minMax) {
       if (dimensions[axis] !== undefined) {
         virtualBox[axis] = dimensions[axis];
       } else {
-        virtualBox[axis] = Math.max(virtualBox[axis], minDimensions[axis]);
-        virtualBox[axis] = Math.min(virtualBox[axis], maxDimensions[axis]);
+        virtualBox[axis] = Math.min(Math.max(virtualBox[axis], minDimensions[axis]), maxDimensions[axis]);
       }
     }
   } catch (err) {
@@ -52481,19 +52485,23 @@ function getBoundaries(object) {
   }
 }
 
-function makeInitialPosition() {
-  return {
+function makeInitialOffset(object, onlyMargin) {
+  var offset = {
     x: { reference: 'left', distance: 0 },
     y: { reference: 'top', distance: 0 },
     z: { reference: 'far', distance: 0 }
   };
+
+  if (object && object._isw3dObject) {
+    offset.x.distance += getSpacer(object, 'left', onlyMargin);
+    offset.y.distance += getSpacer(object, 'top', onlyMargin);
+    offset.z.distance += getSpacer(object, 'far', onlyMargin);
+  }
+
+  return offset;
 }
 
-/*
- * Returns the world position that the child should have
- * given its relative position to the parent.
- */
-function makeWorldPosition(object, offset) {
+function makePosition(object, offset) {
   var position = {};
 
   var _iteratorNormalCompletion8 = true;
@@ -52508,6 +52516,7 @@ function makeWorldPosition(object, offset) {
       if (!object._isw3dObject) {
         position[axis] += object.boundaries[offset[axis].reference];
       }
+
       switch (offset[axis].reference) {
         case 'right':
         case 'top':
@@ -52534,12 +52543,41 @@ function makeWorldPosition(object, offset) {
   return position;
 }
 
-function positionLine(object, offset, minContributions, firstChild, lastChild) {
+function assignPosition(object, position) {
+  var _iteratorNormalCompletion9 = true;
+  var _didIteratorError9 = false;
+  var _iteratorError9 = undefined;
+
+  try {
+    for (var _iterator9 = AXES[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+      var axis = _step9.value;
+
+      object.position[axis] = position[axis];
+    }
+  } catch (err) {
+    _didIteratorError9 = true;
+    _iteratorError9 = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion9 && _iterator9.return) {
+        _iterator9.return();
+      }
+    } finally {
+      if (_didIteratorError9) {
+        throw _iteratorError9;
+      }
+    }
+  }
+}
+
+function positionLine(object, receivedOffset, minContributions, firstChild, lastChild) {
+  var offset = JSON.parse(JSON.stringify(receivedOffset));
+
   var axes = getAxes(object);
   var availableSpace = Math.max(object.containerSpace[axes['main']] - minContributions, 0);
   var totalGrowth = 0;
-  for (var _i5 = firstChild; _i5 <= lastChild; _i5++) {
-    var child = object.children[_i5];
+  for (var i = firstChild; i <= lastChild; i++) {
+    var child = object.children[i];
     var grow = child._isw3dObject ? child.getStyle('grow') : 0;
     totalGrowth += grow;
   }
@@ -52547,8 +52585,8 @@ function positionLine(object, offset, minContributions, firstChild, lastChild) {
   var crossSize = 0;
   var otherSize = 0;
 
-  for (var _i6 = firstChild; _i6 <= lastChild; _i6++) {
-    var _child = object.children[_i6];
+  for (var _i2 = firstChild; _i2 <= lastChild; _i2++) {
+    var _child = object.children[_i2];
     if (_child._isBackground) {
       continue;
     }
@@ -52559,8 +52597,8 @@ function positionLine(object, offset, minContributions, firstChild, lastChild) {
     var childAvailableSpace = {};
     childAvailableSpace[axes['main']] = _child.minContentContribution[axes['main']] + availableSpace * growthFactor;
     var _arr2 = ['cross', 'other'];
-    for (var _i7 = 0; _i7 < _arr2.length; _i7++) {
-      var axis = _arr2[_i7];
+    for (var _i3 = 0; _i3 < _arr2.length; _i3++) {
+      var axis = _arr2[_i3];
       childAvailableSpace[axes[axis]] = Math.max(object.containerSpace[axes[axis]] - offset[axes[axis]].distance, 0);
     }
     _child.availableSpace = childAvailableSpace;
@@ -52569,31 +52607,8 @@ function positionLine(object, offset, minContributions, firstChild, lastChild) {
       _child.arrangeChildren();
     }
 
-    var childPosition = makeWorldPosition(_child, offset);
-    var _iteratorNormalCompletion9 = true;
-    var _didIteratorError9 = false;
-    var _iteratorError9 = undefined;
-
-    try {
-      for (var _iterator9 = AXES[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-        var _axis = _step9.value;
-
-        _child.position[_axis] = childPosition[_axis];
-      }
-    } catch (err) {
-      _didIteratorError9 = true;
-      _iteratorError9 = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion9 && _iterator9.return) {
-          _iterator9.return();
-        }
-      } finally {
-        if (_didIteratorError9) {
-          throw _iteratorError9;
-        }
-      }
-    }
+    var childPosition = makePosition(_child, offset);
+    assignPosition(_child, childPosition);
 
     offset[axes['main']].distance += _child.outerSize[axes['main']];
     crossSize = Math.max(crossSize, _child.outerSize[axes['cross']]);
@@ -52607,56 +52622,51 @@ function positionChildren(object) {
   var objectAxes = getAxes(object);
   var wrap = object.getStyle('wrap') === 'wrap';
 
-  var offset = makeInitialPosition();
-  offset.x.distance += getSpacer(object, 'left');
-  offset.y.distance += getSpacer(object, 'top');
-  offset.z.distance += getSpacer(object, 'far');
+  var offset = makeInitialOffset(object);
 
   // At this time, we can only know for sure the object's main axis
   // dimensions. After positioning the children we will know the rest.
-  var objectCrossSize = 0;
+  var objectNewSizes = {
+    cross: 0,
+    other: 0
+  };
   var objectOtherSize = 0;
 
   var minContributions = 0;
   var lastPositionedChild = -1;
 
-  for (var currentChild = 0; currentChild < object.children.length; currentChild++) {
-    var child = object.children[currentChild];
+  for (var i = 0; i < object.children.length; i++) {
+    var child = object.children[i];
 
     if (child._isBackground) {
-      /*
-      let childPosition = makeWorldPosition(
-        child,
-        makeInitialPosition()
-      );
-      for (let axis of AXES) {
-        child.position[axis] = childPosition[axis];
-      }
-      */
       continue;
     }
 
     if (wrap && minContributions + child.minContentContribution[objectAxes.main] > object.innerSize[objectAxes.main]) {
-      var lineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, currentChild - 1);
+      var lineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, i - 1);
 
       offset[objectAxes['cross']]['distance'] += lineDimensions.crossSize;
-      objectCrossSize += lineDimensions.crossSize;
-      objectOtherSize += lineDimensions.otherSize;
+      objectNewSizes.cross += lineDimensions.crossSize;
+      objectNewSizes.other += lineDimensions.otherSize;
 
-      lastPositionedChild = currentChild - 1;
+      lastPositionedChild = i - 1;
       minContributions = child.minContentContribution[objectAxes.main];
     } else {
       minContributions += child.minContentContribution[objectAxes.main];
     }
   }
   var finalLineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, object.children.length - 1);
-  objectCrossSize += finalLineDimensions.crossSize;
-  objectOtherSize += finalLineDimensions.otherSize;
+  objectNewSizes.cross += finalLineDimensions.crossSize;
+  objectNewSizes.other += finalLineDimensions.otherSize;
 
   var newOuterDimensions = {};
-  newOuterDimensions[objectAxes['main']] = Math.min(object.maxContentContribution[objectAxes['main']], object.availableSpace[objectAxes['main']]);
-  newOuterDimensions[objectAxes['cross']] = objectCrossSize;
-  newOuterDimensions[objectAxes['other']] = objectOtherSize;
+  newOuterDimensions[objectAxes['main']] = Math.max(object.minContentContribution[objectAxes['main']], Math.min(object.maxContentContribution[objectAxes['main']], object.availableSpace[objectAxes['main']]));
+  var spacers = addSpacers(getSpacers(object, 'margin'), getSpacers(object, 'padding'));
+  var _arr3 = ['cross', 'other'];
+  for (var _i4 = 0; _i4 < _arr3.length; _i4++) {
+    var axis = _arr3[_i4];
+    newOuterDimensions[objectAxes[axis]] = objectNewSizes[axis] + spacers[objectAxes[axis]];
+  }
   object.outerSize = newOuterDimensions;
 }
 
@@ -52687,6 +52697,8 @@ function updateBackground(object) {
     } else {
       object.add(newBg);
     }
+
+    assignPosition(newBg, makePosition(newBg, makeInitialOffset(object, true)));
   }
 }
 
@@ -52881,18 +52893,6 @@ var object3DPrototype = {
       }
     }
   },
-
-
-  set outerSize(newSize) {
-    var updatedSize = {};
-    var sizesFromStyle = objectUtils.getSizesFromStyle(this);
-    for (var axis in newSize) {
-      updatedSize[axis] = sizesFromStyle[axis].fixed ? sizesFromStyle[axis].fixed : Math.max(sizesFromStyle[axis].min, Math.min(sizesFromStyle[axis].max, newSize[axis]));
-    }
-    this._outerSize = updatedSize;
-    this.w3dAllNeedUpdate();
-  },
-
   updateBackground: function updateBackground() {
     objectUtils.updateBackground(this);
   },
