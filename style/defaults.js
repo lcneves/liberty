@@ -44,6 +44,10 @@ module.exports = {
       'direction': 'row'
     },
     'body': {
+      'width': '100vw',
+      'height': '100vh',
+      'depth': '100vd',
+      'direction': 'stack',
       'font-family': 'sans-serif',
       'font-size': 16,
       'font-height': 1,
@@ -53,7 +57,8 @@ module.exports = {
     },
 
     'surface': {
-      'display': 'plane'
+      'width': '100%',
+      'height': '100%'
     },
 
     'div': {

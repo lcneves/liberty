@@ -4,8 +4,6 @@ module.exports = {
   'tags': {
     'body': {
       'padding': '1rem 2rem'
-    },
-    'p': {
     }
   },
   'classes': {
