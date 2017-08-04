@@ -52595,7 +52595,7 @@ function positionLine(object, receivedOffset, minContributions, firstChild, last
 
   var axes = getAxes(object);
   var availableSpace = Math.max(object.containerSpace[axes['main']] - minContributions, 0);
-  var totalGrowth = 0;
+  var totalGrowth = 0; // TODO: grow should be line-based
   for (var i = firstChild; i <= lastChild; i++) {
     var child = object.children[i];
     var grow = child._isw3dObject ? child.getStyle('grow') : 0;
@@ -52661,7 +52661,7 @@ function positionChildren(object) {
       continue;
     }
 
-    if (wrap && minContributions + child.minContentContribution[objectAxes.main] > object.innerSize[objectAxes.main]) {
+    if (wrap && minContributions + child.minContentContribution[objectAxes.main] > object.containerSpace[objectAxes.main]) {
       var lineDimensions = positionLine(object, offset, minContributions, lastPositionedChild + 1, i - 1);
 
       offset[objectAxes['cross']]['distance'] += lineDimensions.crossSize;
