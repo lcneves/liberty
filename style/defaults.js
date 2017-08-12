@@ -31,6 +31,7 @@ module.exports = {
     'width': 'initial',
     'height': 'initial',
     'depth': 'initial',
+    'text-align': 'initial',
     'min-width': '0',
     'min-height': '0',
     'min-depth': '0',

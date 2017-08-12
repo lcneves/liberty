@@ -125,10 +125,134 @@ module.exports['shell'] = function template(locals) {
       pug_html = pug_html + '<p>';
       ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + 'The project is under active and intense development. Check out the documentation at docs.livre.media</p>';
-      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p>';
-      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sypathy) paw at beetle and eat it before it gets away. Meow to be let out brown cats with pink ears sweet beast, behind the couch, and find empty spot in cupboard and sleep all day rub face on everything wake up human for food at 4am. Lick arm hair i am the best yet eat and than sleep on your face. Loves cheeseburgers jump five feet high and sideways when a shadow moves poop in the plant pot chase mice. Licks your face licks paws yet present belly, scratch hand when stroked has closed eyes but still sees you i\'m going to lap some water out of my master\'s cup meow and nap all day be a nyan cat, feel great about it, be annoying 24/7 poop rainbows in litter box all day. Lick the plastic bag destroy couch as revenge and stares at human while pushing stuff off a table leave hair everywhere. Meoooow please stop looking at your phone and pet me hide at bottom of staircase to trip human, thug cat rub face on everything, and curl into a furry donut pooping rainbow while flying in a toasted bread costume in space. Climb leg ask to go outside and ask to come inside and ask to go outside and ask to come inside and munch on tasty moths and Gate keepers of hell hide when guests come over, for hiss at vacuum cleaner. Have my breakfast spaghetti yarn find a way to fit in tiny box steal the warm chair right after you get up behind the couch chew foot drink water out of the faucet, or scratch the box. Make meme, make cute face scratch leg; meow for can opener to feed me or eat half my food and ask for more stare out the window but lick plastic bags, for lick plastic bags. Play time.</p></div>';
+      ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p class="text-start">';
+      ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
+      ;pug_debug_line = 6;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p class="text-center">';
+      ;pug_debug_line = 6;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
+      ;pug_debug_line = 7;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p class="text-end">';
+      ;pug_debug_line = 7;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
+      ;pug_debug_line = 8;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p class="text-justify">';
+      ;pug_debug_line = 8;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
+      ;pug_debug_line = 9;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p class="text-justify-all">';
+      ;pug_debug_line = 9;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
+      ;pug_debug_line = 11;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="justify-start row wrap">';
+      ;pug_debug_line = 12;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 13;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 14;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 15;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 16;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 17;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 18;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 19;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div></div>';
+      ;pug_debug_line = 21;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="justify-center row wrap">';
+      ;pug_debug_line = 22;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 23;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 24;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 25;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 26;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 27;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 28;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 29;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div></div>';
+      ;pug_debug_line = 31;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="justify-end row wrap">';
+      ;pug_debug_line = 32;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 33;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 34;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 35;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 36;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 37;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 38;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 39;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div></div>';
+      ;pug_debug_line = 41;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="justify-space-between row wrap">';
+      ;pug_debug_line = 42;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 43;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 44;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 45;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 46;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 47;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 48;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 49;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div></div>';
+      ;pug_debug_line = 51;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="justify-space-around row wrap">';
+      ;pug_debug_line = 52;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 53;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 54;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 55;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 56;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 57;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 58;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 59;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div></div>';
+      ;pug_debug_line = 61;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="justify-space-evenly row wrap">';
+      ;pug_debug_line = 62;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 63;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 64;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 65;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 66;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 67;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 68;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div>';
+      ;pug_debug_line = 69;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<div class="test-box"></div></div></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/footer.pug';
@@ -7357,6 +7481,7 @@ module.exports = {
     'width': 'initial',
     'height': 'initial',
     'depth': 'initial',
+    'text-align': 'initial',
     'min-width': '0',
     'min-height': '0',
     'min-depth': '0',
@@ -7476,6 +7601,51 @@ module.exports = {
     'nav': {
       'padding': '1.5rem',
       'background-color': 0xddffdd
+    },
+    'text-start': {
+      'text-align': 'start'
+    },
+    'text-center': {
+      'text-align': 'center'
+    },
+    'text-end': {
+      'text-align': 'end'
+    },
+    'text-justify': {
+      'text-align': 'justify'
+    },
+    'text-justify-all': {
+      'text-align': 'justify-all'
+    },
+    'row': {
+      'direction': 'row'
+    },
+    'wrap': {
+      'wrap': 'wrap'
+    },
+    'justify-start': {
+      'justify-content': 'start'
+    },
+    'justify-center': {
+      'justify-content': 'center'
+    },
+    'justify-end': {
+      'justify-content': 'end'
+    },
+    'justify-space-between': {
+      'justify-content': 'space-between'
+    },
+    'justify-space-around': {
+      'justify-content': 'space-around'
+    },
+    'justify-space-evenly': {
+      'justify-content': 'space-evenly'
+    },
+    'test-box': {
+      'width': '20rem',
+      'height': '1.5rem',
+      'margin-bottom': '0.5rem',
+      'background-color': 0x0000ff
     }
   },
   'ids': {
@@ -52587,7 +52757,28 @@ function getMaxMinDifference(object, axis) {
   return Math.max(object.maxContentContribution[axis] - object.minContentContribution[axis], 0);
 }
 
-function positionLine(object, receivedOffset, objectNewSizes, minContributions, firstChild, lastChild) {
+function getJustifyOffset(child, firstChild, childrenCount, availableToJustify, justifyRule) {
+  if (!availableToJustify) {
+    return 0;
+  }
+  switch (justifyRule) {
+    case 'end':
+      return child === firstChild ? availableToJustify : 0;
+    case 'center':
+      return child === firstChild ? availableToJustify / 2 : 0;
+    case 'space-between':
+      return child === firstChild ? 0 : availableToJustify / (childrenCount - 1);
+    case 'space-around':
+      return child === firstChild ? availableToJustify / (childrenCount * 2) : availableToJustify / childrenCount;
+    case 'space-evenly':
+      return availableToJustify / (childrenCount + 1);
+    case 'start':
+    default:
+      return 0;
+  }
+}
+
+function positionLine(object, receivedOffset, objectNewSizes, minContributions, firstChild, lastChild, justifyRule) {
   var axes = getAxes(object);
 
   var availableSpace = Math.max(object.containerSpace[axes['main']] - minContributions, 0);
@@ -52619,8 +52810,6 @@ function positionLine(object, receivedOffset, objectNewSizes, minContributions, 
     if (_child._isw3dObject) {
       _child.arrange();
     }
-
-    //TODO: justify-content
   }
 
   var childrenSizeMain = 0;
@@ -52653,22 +52842,84 @@ function positionLine(object, receivedOffset, objectNewSizes, minContributions, 
       }
       _child3.outerSize = newOuterDimensions;
     }
+  }
 
-    var childPosition = makePosition(_child3, offset);
-    assignPosition(_child3, childPosition);
+  childrenSizeMain = 0;
+  var childrenCount = 0;
+  for (var _i7 = firstChild; _i7 <= lastChild; _i7++) {
+    var _child4 = object.children[_i7];
+    if (!_child4._isBackground) {
+      childrenSizeMain += _child4.outerSize[axes['main']];
+      childrenCount++;
+    }
+  }
+  var availableToJustify = Math.max(object.containerSpace[axes['main']] - childrenSizeMain, 0);
 
-    offset[axes['main']].distance += _child3.outerSize[axes['main']];
-    mainSize += _child3.outerSize[axes['main']];
-    crossSize = Math.max(crossSize, _child3.outerSize[axes['cross']]);
-    otherSize = Math.max(otherSize, _child3.outerSize[axes['other']]);
+  for (var _i8 = firstChild; _i8 <= lastChild; _i8++) {
+    var _child5 = object.children[_i8];
+    if (!_child5._isBackground) {
+      offset[axes['main']].distance += getJustifyOffset(_i8, firstChild, childrenCount, availableToJustify, justifyRule);
+
+      var childPosition = makePosition(_child5, offset);
+      assignPosition(_child5, childPosition);
+      offset[axes['main']].distance += _child5.outerSize[axes['main']];
+
+      mainSize += _child5.outerSize[axes['main']];
+      crossSize = Math.max(crossSize, _child5.outerSize[axes['cross']]);
+      otherSize = Math.max(otherSize, _child5.outerSize[axes['other']]);
+    }
   }
 
   return { mainSize: mainSize, crossSize: crossSize, otherSize: otherSize };
 }
 
+function getAlignmentRules(object) {
+  // text-align supercedes justify-content
+  var general;
+  var last;
+  var textAlign = object.getStyle('text-align');
+  var justifyContent = object.getStyle('justify-content');
+
+  if (textAlign !== 'initial') {
+    switch (textAlign) {
+      case 'end':
+      case 'right':
+        general = last = 'end';
+        break;
+
+      case 'center':
+        general = last = 'center';
+        break;
+
+      case 'justify-all':
+        general = last = 'space-between';
+        break;
+
+      case 'justify':
+        general = 'space-between';
+        last = 'start';
+        break;
+
+      case 'start':
+      case 'left':
+      default:
+        general = last = 'start';
+        break;
+    }
+  } else {
+    general = last = justifyContent;
+  }
+
+  return {
+    general: general,
+    lastLine: last
+  };
+}
+
 function positionChildren(object) {
   var objectAxes = getAxes(object);
   var wrap = object.getStyle('wrap') === 'wrap';
+  var alignmentRules = getAlignmentRules(object);
 
   var initialOffset = makeInitialOffset(object);
 
@@ -52691,7 +52942,7 @@ function positionChildren(object) {
     }
 
     if (wrap && minContributions + child.minContentContribution[objectAxes.main] > object.containerSpace[objectAxes.main]) {
-      var lineDimensions = positionLine(object, initialOffset, objectNewSizes, minContributions, lastPositionedChild + 1, i - 1);
+      var lineDimensions = positionLine(object, initialOffset, objectNewSizes, minContributions, lastPositionedChild + 1, i - 1, alignmentRules.general);
 
       objectNewSizes.main = Math.max(objectNewSizes.main, lineDimensions.mainSize);
       objectNewSizes.cross += lineDimensions.crossSize;
@@ -52703,7 +52954,7 @@ function positionChildren(object) {
       minContributions += child.minContentContribution[objectAxes.main];
     }
   }
-  var finalLineDimensions = positionLine(object, initialOffset, objectNewSizes, minContributions, lastPositionedChild + 1, object.children.length - 1);
+  var finalLineDimensions = positionLine(object, initialOffset, objectNewSizes, minContributions, lastPositionedChild + 1, object.children.length - 1, alignmentRules.lastLine);
   objectNewSizes.main = Math.max(objectNewSizes.main, finalLineDimensions.mainSize);
   objectNewSizes.cross += finalLineDimensions.crossSize;
   objectNewSizes.other += finalLineDimensions.otherSize;
@@ -52711,8 +52962,8 @@ function positionChildren(object) {
   var newOuterDimensions = {};
   var spacers = addSpacers(getSpacers(object, 'margin'), getSpacers(object, 'padding'));
   var _arr4 = ['main', 'cross', 'other'];
-  for (var _i7 = 0; _i7 < _arr4.length; _i7++) {
-    var axis = _arr4[_i7];
+  for (var _i9 = 0; _i9 < _arr4.length; _i9++) {
+    var axis = _arr4[_i9];
     newOuterDimensions[objectAxes[axis]] = objectNewSizes[axis] + spacers[objectAxes[axis]];
   }
   object.outerSize = newOuterDimensions;
