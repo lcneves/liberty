@@ -53,7 +53,7 @@ module.exports = {
     'test-box': {
       'width': '20rem',
       'height': '1.5rem',
-      'margin-bottom': '0.5rem',
+      'margin': '0.5rem',
       'background-color': 0x0000ff
     }
   },
