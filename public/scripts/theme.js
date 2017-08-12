@@ -7644,7 +7644,7 @@ module.exports = {
     'test-box': {
       'width': '20rem',
       'height': '1.5rem',
-      'margin-bottom': '0.5rem',
+      'margin': '0.5rem',
       'background-color': 0x0000ff
     }
   },
@@ -52253,7 +52253,8 @@ function makeInitialVirtualBox() {
 
 function getSpacer(object, direction, onlyMargin) {
   if (object._isw3dObject) {
-    return units.convert(object, 'margin-' + direction, 'world') + onlyMargin ? 0 : units.convert(object, 'padding-' + direction, 'world');
+    var padding = onlyMargin ? 0 : units.convert(object, 'padding-' + direction, 'world');
+    return units.convert(object, 'margin-' + direction, 'world') + padding;
   } else {
     return 0;
   }
