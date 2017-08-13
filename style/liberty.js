@@ -9,7 +9,7 @@ module.exports = {
   'classes': {
     'nav': {
       'padding': '1.5rem',
-      'background-color': 0xddffdd
+      'background-color': 0xeeffee
     },
     'text-start': {
       'text-align': 'start'
@@ -49,12 +49,6 @@ module.exports = {
     },
     'justify-space-evenly': {
       'justify-content': 'space-evenly'
-    },
-    'test-box': {
-      'width': '20rem',
-      'height': '1.5rem',
-      'margin': '0.5rem',
-      'background-color': 0x0000ff
     }
   },
   'ids': {
@@ -64,12 +58,11 @@ module.exports = {
       'margin-far': '0.6em'
     },
     'text-container': {
-      'grow': 1,
-      'background-color': 0xffdddd
+      'grow': 1
     },
     'footer': {
       'color': 0x888888,
-      'background-color': 0xddddff,
+      'background-color': 0xeeeeff,
       'padding': '1.5rem'
     }
   }

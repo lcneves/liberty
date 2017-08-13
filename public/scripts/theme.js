@@ -118,141 +118,17 @@ module.exports['shell'] = function template(locals) {
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<div id="text-container">';
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p>';
+      pug_html = pug_html + '<p class="text-justify">';
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + 'Livre will be a network of free ideas!</p>';
       ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p>';
-      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'The project is under active and intense development. Check out the documentation at docs.livre.media</p>';
-      ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p class="text-start">';
-      ;pug_debug_line = 5;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
-      ;pug_debug_line = 6;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p class="text-center">';
-      ;pug_debug_line = 6;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
-      ;pug_debug_line = 7;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p class="text-end">';
-      ;pug_debug_line = 7;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
-      ;pug_debug_line = 8;pug_debug_filename = 'views/includes/text.pug';
       pug_html = pug_html + '<p class="text-justify">';
-      ;pug_debug_line = 8;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
-      ;pug_debug_line = 9;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<p class="text-justify-all">';
-      ;pug_debug_line = 9;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + 'Cat ipsum dolor sit amet, tuxedo cats always looking dapper or fall over dead (not really but gets sympathy) paw at beetle and eat it before it gets away.</p>';
-      ;pug_debug_line = 11;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="justify-start row wrap">';
-      ;pug_debug_line = 12;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 13;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 14;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 15;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 16;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 17;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 18;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 19;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div></div>';
-      ;pug_debug_line = 21;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="justify-center row wrap">';
-      ;pug_debug_line = 22;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 23;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 24;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 25;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 26;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 27;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 28;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 29;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div></div>';
-      ;pug_debug_line = 31;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="justify-end row wrap">';
-      ;pug_debug_line = 32;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 33;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 34;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 35;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 36;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 37;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 38;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 39;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div></div>';
-      ;pug_debug_line = 41;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="justify-space-between row wrap">';
-      ;pug_debug_line = 42;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 43;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 44;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 45;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 46;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 47;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 48;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 49;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div></div>';
-      ;pug_debug_line = 51;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="justify-space-around row wrap">';
-      ;pug_debug_line = 52;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 53;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 54;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 55;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 56;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 57;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 58;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 59;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div></div>';
-      ;pug_debug_line = 61;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="justify-space-evenly row wrap">';
-      ;pug_debug_line = 62;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 63;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 64;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 65;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 66;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 67;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 68;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div>';
-      ;pug_debug_line = 69;pug_debug_filename = 'views/includes/text.pug';
-      pug_html = pug_html + '<div class="test-box"></div></div></div>';
+      ;pug_debug_line = 3;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'The project is under active and intense development. Check it out at github.com/lcneves/livre.</p>';
+      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + '<p class="text-justify">';
+      ;pug_debug_line = 4;pug_debug_filename = 'views/includes/text.pug';
+      pug_html = pug_html + 'The user interface will be fully 3D, based on the w3d technology, under development by the same author at w3d.io.</p></div>';
       ;pug_debug_line = 1;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + '<div id="footer">';
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/footer.pug';
@@ -260,9 +136,9 @@ module.exports['shell'] = function template(locals) {
       ;pug_debug_line = 2;pug_debug_filename = 'views/includes/footer.pug';
       pug_html = pug_html + 'Copyright 2017 Lucas Neves</p>';
       ;pug_debug_line = 3;pug_debug_filename = 'views/includes/footer.pug';
-      pug_html = pug_html + '<h4>';
+      pug_html = pug_html + '<p>';
       ;pug_debug_line = 3;pug_debug_filename = 'views/includes/footer.pug';
-      pug_html = pug_html + 'UI under Apache license 2.0</h4></div></surface>';
+      pug_html = pug_html + 'Open-source under Apache license 2.0</p></div></surface>';
     }).call(this, "user" in locals_for_with ? locals_for_with.user : typeof user !== "undefined" ? user : undefined);
   } catch (err) {
     pug.rethrow(err, pug_debug_filename, pug_debug_line);
@@ -7600,7 +7476,7 @@ module.exports = {
   'classes': {
     'nav': {
       'padding': '1.5rem',
-      'background-color': 0xddffdd
+      'background-color': 0xeeffee
     },
     'text-start': {
       'text-align': 'start'
@@ -7640,12 +7516,6 @@ module.exports = {
     },
     'justify-space-evenly': {
       'justify-content': 'space-evenly'
-    },
-    'test-box': {
-      'width': '20rem',
-      'height': '1.5rem',
-      'margin': '0.5rem',
-      'background-color': 0x0000ff
     }
   },
   'ids': {
@@ -7655,12 +7525,11 @@ module.exports = {
       'margin-far': '0.6em'
     },
     'text-container': {
-      'grow': 1,
-      'background-color': 0xffdddd
+      'grow': 1
     },
     'footer': {
       'color': 0x888888,
-      'background-color': 0xddddff,
+      'background-color': 0xeeeeff,
       'padding': '1.5rem'
     }
   }
